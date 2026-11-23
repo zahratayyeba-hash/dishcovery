@@ -1,0 +1,3 @@
+@echo off
+echo Starting DishCovery - Pakistani and Italian 7-Day Meal Planner...
+start "" "%~dp0index.html"

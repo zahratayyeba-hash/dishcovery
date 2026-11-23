@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DishCovery - Weekly Meal Planner (Pakistani & Italian)</title>
+  <meta name="description" content="Generate a complete 7-day meal plan (21 meals) for your family using only ingredients already in your home. Pakistani & Italian home cooking. No decision fatigue!">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>👩‍🍳</text></svg>">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              300: '#86efac',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d'
+            },
+            warm: {
+              cream: '#fdfbf7',
+              ivory: '#f8f4ee',
+              border: '#e8dfd5',
+              borderDark: '#d9cbbe'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#fdfbf7] text-gray-800 min-h-full flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
+
+  <!-- ======================================================================
+       TOP STICKY NAVBAR
+       ====================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-warm-border shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20 gap-2">
+        
+        <!-- App Title & Logo -->
+        <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer" onclick="switchTab('plan')">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-700/20 text-xl sm:text-2xl shrink-0">
+            👩‍🍳
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h1 class="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight leading-none">
+                DishCovery
+              </h1>
+              <span class="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                Pakistani & Italian
+              </span>
+            </div>
+            <p class="text-[11px] sm:text-xs text-gray-500 hidden xs:block mt-0.5">
+              Zero Decision Fatigue • 7-Day Meal Planner (21 Meals)
+            </p>
+          </div>
+        </div>
+
+        <!-- Center: Cuisine Filter Selector (Desktop / Tablet) -->
+        <div class="hidden md:flex items-center bg-warm-ivory p-1 rounded-xl border border-warm-border">
+          <button onclick="setCuisinePreference('all')" id="btnCuisineAll" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-emerald-800 shadow-sm border border-emerald-200">
+            🇵🇰 Pakistani & 🇮🇹 Italian
+          </button>
+          <button onclick="setCuisinePreference('pakistani')" id="btnCuisinePakistani" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-gray-600 hover:text-gray-900">
+            🇵🇰 Pakistani Only
+          </button>
+          <button onclick="setCuisinePreference('italian')" id="btnCuisineItalian" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-gray-600 hover:text-gray-900">
+            🇮🇹 Italian Only
+          </button>
+        </div>
+
+        <!-- Right Side: Stats Pill & 1-Click Generate Action -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Inventory status counter pill -->
+          <button onclick="switchTab('inventory')" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 transition-colors">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span id="navPantryCount">0</span> In Kitchen
+          </button>
+
+          <!-- Primary CTA: Generate 7-Day Plan -->
+          <button onclick="generateWeeklyPlan(true)" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-700/25 active:scale-95 transition-all">
+            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-200"></i>
+            <span>Generate 7-Day Plan</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Cuisine Selector Bar -->
+      <div class="md:hidden pb-2.5 flex items-center justify-between border-t border-warm-border/60 pt-2 gap-1">
+        <span class="text-[11px] font-medium text-gray-500">Cuisine:</span>
+        <div class="flex items-center gap-1 bg-warm-ivory p-0.5 rounded-lg border border-warm-border text-xs">
+          <button onclick="setCuisinePreference('all')" id="mBtnCuisineAll" class="px-2 py-1 rounded-md text-[11px] font-semibold bg-white text-emerald-800 shadow-xs border border-emerald-200">
+            Mix Both
+          </button>
+          <button onclick="setCuisinePreference('pakistani')" id="mBtnCuisinePakistani" class="px-2 py-1 rounded-md text-[11px] font-semibold text-gray-600">
+            🇵🇰 Pakistani
+          </button>
+          <button onclick="setCuisinePreference('italian')" id="mBtnCuisineItalian" class="px-2 py-1 rounded-md text-[11px] font-semibold text-gray-600">
+            🇮🇹 Italian
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       MAIN TAB NAVIGATION BAR
+       ====================================================================== -->
+  <nav class="bg-white border-b border-warm-border sticky top-16 sm:top-20 z-30 shadow-xs no-print">
+    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-around sm:justify-start sm:gap-4 h-12">
+        
+        <!-- Tab 1: Available Ingredients -->
+        <button onclick="switchTab('inventory')" id="tabBtnInventory" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors border-b-2 border-transparent">
+          <i data-lucide="refrigerator" class="w-4 h-4"></i>
+          <span>Ingredients</span>
+          <span id="tabInventoryBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">
+            0
+          </span>
+        </button>
+
+        <!-- Tab 2: 7-Day Meal Plan (Active default) -->
+        <button onclick="switchTab('plan')" id="tabBtnPlan" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-emerald-800 border-b-2 border-emerald-700 transition-colors">
+          <i data-lucide="calendar-days" class="w-4 h-4 text-emerald-700"></i>
+          <span>7-Day Plan</span>
+          <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">
+            21 Meals
+          </span>
+        </button>
+
+        <!-- Tab 3: Browse Recipes -->
+        <button onclick="switchTab('recipes')" id="tabBtnRecipes" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors border-b-2 border-transparent">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>All Recipes</span>
+          <span id="tabRecipesBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-teal-100 text-teal-800">
+            0
+          </span>
+        </button>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- ======================================================================
+       MAIN CONTENT CONTAINER
+       ====================================================================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+    
+    <!-- ====================================================================
+         VIEW 1: 7-DAY MEAL PLAN (21 MEALS)
+         ==================================================================== -->
+    <section id="viewPlan" class="space-y-6">
+      
+      <!-- Top Plan Action Banner -->
+      <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">✨</span>
+            <h2 class="text-base sm:text-lg font-bold text-gray-900">
+              Your Weekly 7-Day Family Meal Plan
+            </h2>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-700 text-white font-semibold shadow-xs">
+              21 Meals
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-gray-600 mt-1">
+            Strictly crafted using <strong class="text-emerald-800 font-semibold">only ingredients available in your kitchen</strong>. Zero grocery shopping runs needed!
+          </p>
+        </div>
+
+        <!-- Actions: WhatsApp Share, Print, Regenerate -->
+        <div class="flex items-center flex-wrap gap-2 sm:gap-3 no-print">
+          <button onclick="openWhatsAppModal()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-95">
+            <i data-lucide="share-2" class="w-4 h-4"></i>
+            <span>Share to WhatsApp</span>
+          </button>
+          
+          <button onclick="window.print()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-warm-border hover:bg-warm-ivory text-gray-700 font-semibold text-xs sm:text-sm shadow-xs transition-colors">
+            <i data-lucide="printer" class="w-4 h-4 text-gray-500"></i>
+            <span>Print / Fridge PDF</span>
+          </button>
+
+          <button onclick="generateWeeklyPlan(false)" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-50 font-semibold text-xs sm:text-sm shadow-xs transition-colors">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            <span>Shuffle Plan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Ingredient Availability Notification Box -->
+      <div id="planEligibilityAlert" class="hidden"></div>
+
+      <!-- Days Grid (Monday - Sunday) -->
+      <div id="planDaysContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+
+    </section>
+
+
+    <!-- ====================================================================
+         VIEW 2: AVAILABLE INGREDIENTS (PANTRY SELECTOR)
+         ==================================================================== -->
+    <section id="viewInventory" class="hidden space-y-6">
+      
+      <!-- Welcome Header & Problem Statement -->
+      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-warm-border shadow-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg sm:text-xl font-extrabold text-gray-900 flex items-center gap-2">
+              <span>🥕 Kitchen Inventory Check</span>
+            </h2>
+            <p class="text-xs sm:text-sm text-gray-600 mt-1 max-w-2xl">
+              Tap the ingredients you currently have at home. Our rule is 100% strict: <strong class="text-emerald-800">If you do not have the required ingredients, we will NEVER suggest that recipe!</strong>
+            </p>
+          </div>
+
+          <!-- Quick Action Button to Plan -->
+          <button onclick="switchTab('plan'); generateWeeklyPlan(false);" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-700/20 transition-all shrink-0">
+            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-200"></i>
+            <span>Done! Generate Plan</span>
+          </button>
+        </div>
+
+        <!-- Quick 1-Tap Pantry Presets -->
+        <div class="mt-4 pt-4 border-t border-warm-border">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
+              Quick 1-Tap Pantry Presets:
+            </span>
+            <button onclick="clearAllIngredients()" class="text-xs text-red-600 hover:text-red-700 font-semibold">
+              Clear All
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="applyPreset('pakistani_staples')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-semibold transition-all">
+              🇵🇰 Pakistani Kitchen Staples
+            </button>
+            <button onclick="applyPreset('pakistani_and_italian')" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-900 text-xs font-semibold transition-all">
+              🇵🇰 + 🇮🇹 Pakistani & Italian Kitchen
+            </button>
+            <button onclick="applyPreset('italian_only')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-semibold transition-all">
+              🇮🇹 Italian Essentials
+            </button>
+            <button onclick="applyPreset('minimal_veggie')" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-800 text-xs font-semibold transition-all">
+              🌱 Minimal Veggie Staples
+            </button>
+            <button onclick="selectAllIngredients()" class="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-800 text-xs font-semibold transition-all">
+              Select All (Full Kitchen)
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Bar & Category Filter Pills -->
+        <div class="mt-4 pt-4 border-t border-warm-border flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <!-- Search Input -->
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="ingredientSearchInput" oninput="handleIngredientSearch(this.value)" placeholder="Search ingredients (e.g. Chicken, Potato, Pasta, Eggs, Tomato, Rice...)" class="w-full pl-9 pr-4 py-2 bg-warm-ivory rounded-xl border border-warm-border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all">
+          </div>
+
+          <!-- Category Filter Pills -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="ingredientCategoryFilters">
+            <!-- Rendered in app.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Ingredient Cards Grouped by Categories -->
+      <div id="ingredientsGroupContainer" class="space-y-6">
+        <!-- Rendered in app.js -->
+      </div>
+
+      <!-- Floating bottom CTA for mobile -->
+      <div class="sticky bottom-4 z-20 max-w-md mx-auto block no-print">
+        <button onclick="switchTab('plan'); generateWeeklyPlan(false);" class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-emerald-700/30 flex items-center justify-center gap-2 active:scale-98 transition-all">
+          <i data-lucide="sparkles" class="w-4 h-4 text-emerald-200"></i>
+          <span id="btnFloatingPlanText">Ready! Generate 7-Day Plan (0 Recipes)</span>
+        </button>
+      </div>
+
+    </section>
+
+
+    <!-- ====================================================================
+         VIEW 3: BROWSE ALL RECIPES & COOKABILITY STATUS
+         ==================================================================== -->
+    <section id="viewRecipes" class="hidden space-y-6">
+      
+      <!-- Recipe Filter Header -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-warm-border shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+            <span>📖 Recipe Catalog & Cookability</span>
+          </h2>
+          <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
+            Green cards are 100% ready to cook with your ingredients. Red cards show what items you are missing.
+          </p>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center bg-warm-ivory p-0.5 rounded-xl border border-warm-border text-xs">
+            <button onclick="setRecipeMealFilter('all')" id="btnFilterMealAll" class="px-2.5 py-1.5 rounded-lg font-semibold bg-white text-emerald-800 shadow-xs border border-emerald-200">
+              All Slots
+            </button>
+            <button onclick="setRecipeMealFilter('breakfast')" id="btnFilterMealBreakfast" class="px-2.5 py-1.5 rounded-lg font-semibold text-gray-600 hover:text-gray-900">
+              🌅 Breakfast
+            </button>
+            <button onclick="setRecipeMealFilter('lunch')" id="btnFilterMealLunch" class="px-2.5 py-1.5 rounded-lg font-semibold text-gray-600 hover:text-gray-900">
+              ☀️ Lunch
+            </button>
+            <button onclick="setRecipeMealFilter('dinner')" id="btnFilterMealDinner" class="px-2.5 py-1.5 rounded-lg font-semibold text-gray-600 hover:text-gray-900">
+              🌙 Dinner
+            </button>
+          </div>
+
+          <div class="flex items-center bg-warm-ivory p-0.5 rounded-xl border border-warm-border text-xs">
+            <button onclick="setRecipeCookableFilter('eligible')" id="btnFilterCookableOnly" class="px-2.5 py-1.5 rounded-lg font-semibold bg-white text-emerald-800 shadow-xs border border-emerald-200">
+              ✅ Ready Now
+            </button>
+            <button onclick="setRecipeCookableFilter('all')" id="btnFilterCookableAll" class="px-2.5 py-1.5 rounded-lg font-semibold text-gray-600 hover:text-gray-900">
+              All Recipes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recipes Grid -->
+      <div id="recipeCatalogGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered in app.js -->
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ======================================================================
+       RECIPE DETAIL MODAL
+       ====================================================================== -->
+  <div id="recipeModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 modal-backdrop hidden">
+    <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-warm-border animate-in fade-in zoom-in duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 sm:p-6 border-b border-warm-border flex items-start justify-between bg-gradient-to-r from-emerald-50/60 to-amber-50/40">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span id="modalCuisineBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold"></span>
+            <span id="modalMealSlotBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700 font-medium"></span>
+          </div>
+          <h3 id="modalRecipeTitle" class="text-xl sm:text-2xl font-extrabold text-gray-900 leading-tight"></h3>
+          <p id="modalRecipeSubtitle" class="text-xs sm:text-sm font-semibold text-emerald-800 mt-0.5"></p>
+        </div>
+        <button onclick="closeRecipeModal()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-5 sm:p-6 overflow-y-auto space-y-5 text-sm">
+        
+        <!-- Quick Meta Info (Times & Difficulty) -->
+        <div class="grid grid-cols-3 gap-2 p-3 bg-warm-ivory rounded-2xl border border-warm-border text-center text-xs">
+          <div>
+            <span class="text-gray-400 block text-[10px] uppercase font-bold">Prep Time</span>
+            <span id="modalPrepTime" class="font-bold text-gray-800"></span>
+          </div>
+          <div class="border-x border-warm-border/80">
+            <span class="text-gray-400 block text-[10px] uppercase font-bold">Cook Time</span>
+            <span id="modalCookTime" class="font-bold text-gray-800"></span>
+          </div>
+          <div>
+            <span class="text-gray-400 block text-[10px] uppercase font-bold">Difficulty</span>
+            <span id="modalDifficulty" class="font-bold text-gray-800"></span>
+          </div>
+        </div>
+
+        <!-- Family Kitchen Secret Pro Tip -->
+        <div id="modalMomTipBox" class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-amber-950 flex items-start gap-3">
+          <span class="text-xl shrink-0">💡</span>
+          <div>
+            <span class="font-bold text-amber-900 block text-xs uppercase tracking-wider mb-0.5">Kitchen Cooking Secret</span>
+            <p id="modalMomTip" class="text-xs sm:text-sm text-amber-900 leading-relaxed"></p>
+          </div>
+        </div>
+
+        <!-- Required Ingredients Checklist -->
+        <div>
+          <h4 class="font-bold text-gray-900 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+            Required Ingredients (Checked at Home):
+          </h4>
+          <div id="modalRequiredIngredients" class="flex flex-wrap gap-1.5">
+            <!-- Rendered in app.js -->
+          </div>
+        </div>
+
+        <!-- Optional / Enhancers -->
+        <div id="modalOptionalIngredientsSection">
+          <h4 class="font-bold text-gray-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-gray-400"></i>
+            Optional Taste Enhancers:
+          </h4>
+          <div id="modalOptionalIngredients" class="flex flex-wrap gap-1.5">
+            <!-- Rendered in app.js -->
+          </div>
+        </div>
+
+        <!-- Step-by-Step Cooking Instructions -->
+        <div>
+          <h4 class="font-bold text-gray-900 text-xs uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <i data-lucide="flame" class="w-4 h-4 text-emerald-700"></i>
+            Simple Cooking Method:
+          </h4>
+          <ol id="modalInstructionsList" class="space-y-2.5">
+            <!-- Rendered in app.js -->
+          </ol>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-warm-border bg-warm-ivory/50 flex items-center justify-end">
+        <button onclick="closeRecipeModal()" class="px-5 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-semibold text-xs sm:text-sm">
+          Close Recipe
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       SWAP MEAL MODAL
+       ====================================================================== -->
+  <div id="swapModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 modal-backdrop hidden">
+    <div class="bg-white w-full max-w-lg max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-warm-border animate-in fade-in zoom-in duration-150">
+      
+      <div class="p-5 border-b border-warm-border flex items-center justify-between bg-emerald-50/50">
+        <div>
+          <h3 class="text-lg font-bold text-gray-900" id="swapModalTitle">
+            Swap Meal
+          </h3>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Select another dish that only uses ingredients currently in your kitchen.
+          </p>
+        </div>
+        <button onclick="closeSwapModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-2" id="swapOptionsContainer">
+        <!-- Rendered in app.js -->
+      </div>
+
+      <div class="p-3 border-t border-warm-border bg-warm-ivory text-right">
+        <button onclick="closeSwapModal()" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900">
+          Cancel
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       WHATSAPP SHARING MODAL
+       ====================================================================== -->
+  <div id="whatsappModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 modal-backdrop hidden">
+    <div class="bg-white w-full max-w-md max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-warm-border">
+      
+      <div class="p-5 border-b border-warm-border bg-emerald-50 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg">
+            📲
+          </div>
+          <div>
+            <h3 class="font-bold text-gray-900 text-base">Share Plan on WhatsApp</h3>
+            <p class="text-xs text-emerald-800">Send directly to your family or domestic helper!</p>
+          </div>
+        </div>
+        <button onclick="closeWhatsAppModal()" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto">
+        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+          Plan Text Preview (English):
+        </label>
+        <textarea id="whatsappTextPreview" readonly class="w-full h-64 p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono text-gray-800 focus:outline-none"></textarea>
+      </div>
+
+      <div class="p-4 border-t border-warm-border bg-warm-ivory flex flex-col gap-2">
+        <button onclick="copyWhatsAppText()" id="btnCopyWhatsApp" class="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all">
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          <span>Copy to Clipboard</span>
+        </button>
+
+        <button onclick="openNativeWhatsApp()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>Open in WhatsApp</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       FOOTER
+       ====================================================================== -->
+  <footer class="mt-auto py-6 bg-white border-t border-warm-border text-center text-xs text-gray-500 no-print">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="text-base">👩‍🍳</span>
+        <span class="font-semibold text-gray-800">DishCovery</span>
+        <span>• Pakistani & Italian Weekly Meal Planner</span>
+      </div>
+      <div class="flex items-center gap-4 text-gray-500">
+        <span>Zero Grocery Stress</span>
+        <span>•</span>
+        <span>Only Pakistani & Italian Cuisines</span>
+        <span>•</span>
+        <span>100% Home Ingredients</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic Scripts -->
+  <script src="recipes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
