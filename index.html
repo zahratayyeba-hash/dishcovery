@@ -1,453 +1,445 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DishCovery - Weekly Meal Planner (Pakistani & Italian)</title>
-  <meta name="description" content="Generate a complete 7-day meal plan (21 meals) for your family using only ingredients already in your home. Pakistani & Italian home cooking. No decision fatigue!">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>👩‍🍳</text></svg>">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Dishcovery — 7-Day Stress-Free Meal Planner</title>
   
   <!-- Google Fonts: Plus Jakarta Sans -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: false, // Strict Light Theme only
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
           },
           colors: {
             brand: {
-              50: '#f0fdf4',
-              100: '#dcfce7',
-              200: '#bbf7d0',
-              300: '#86efac',
-              400: '#4ade80',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d',
-              800: '#166534',
-              900: '#14532d'
+              50: '#fff7ed',
+              100: '#ffedd5',
+              200: '#fed7aa',
+              300: '#fdba74',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
             },
-            warm: {
-              cream: '#fdfbf7',
-              ivory: '#f8f4ee',
-              border: '#e8dfd5',
-              borderDark: '#d9cbbe'
-            }
+            culinary: {
+              desi: '#047857',      // Deep emerald / Pakistani green
+              desiLight: '#ECFDF5',
+              desiBorder: '#A7F3D0',
+              italian: '#B91C1C',   // Rich Italian terracotta red
+              italianLight: '#FEF2F2',
+              italianBorder: '#FECACA',
+              olive: '#4D7C0F',
+              herb: '#15803D',
+            },
+            warmBg: '#FAF7F2',
+            cardBg: '#FFFFFF',
           }
         }
       }
-    }
+    };
   </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAF7F2;
+      color: #1F2937;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
+    .pt-safe { padding-top: env(safe-area-inset-top, 0.5rem); }
+    
+    /* Smooth transitions */
+    .transition-tab {
+      transition: all 0.25s ease-in-out;
+    }
+    
+    /* Custom scrollbar for horizontal chip bars */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
 
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="styles.css">
+    @media print {
+      body { background-color: #fff !important; }
+      header, nav, #app-actions-banner, #mobile-bottom-bar, .no-print { display: none !important; }
+      #tab-plan { display: block !important; }
+      .meal-card-actions { display: none !important; }
+      .print-page-break { page-break-after: always; }
+    }
+  </style>
 </head>
-<body class="bg-[#fdfbf7] text-gray-800 min-h-full flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
+<body class="min-h-screen flex flex-col selection:bg-brand-100 selection:text-brand-900 text-slate-800">
 
-  <!-- ======================================================================
-       TOP STICKY NAVBAR
-       ====================================================================== -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-warm-border shadow-sm no-print">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16 sm:h-20 gap-2">
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-orange-100 shadow-sm pt-safe">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo & Pitch -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <span class="material-symbols-outlined text-[24px]">restaurant_menu</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-extrabold tracking-tight text-slate-900 leading-none">Dishcovery</h1>
+            <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-orange-100 text-brand-700 rounded-full">Mom's Assistant</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">7-Day Zero-Fatigue Meal Planner</p>
+        </div>
+      </div>
+
+      <!-- Quick Status Badges (Desktop/Tablet) -->
+      <div class="flex items-center gap-2">
+        <div class="hidden sm:flex items-center gap-2 bg-amber-50 border border-amber-200/80 px-3 py-1.5 rounded-full text-xs font-semibold text-amber-900">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="header-ingredient-count">0 items ready</span>
+        </div>
+        <div class="hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-full text-xs font-semibold text-emerald-800">
+          <span class="material-symbols-outlined text-[16px] text-emerald-600">soup_kitchen</span>
+          <span id="header-recipe-count">0 cookable meals</span>
+        </div>
         
-        <!-- App Title & Logo -->
-        <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer" onclick="switchTab('plan')">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-700/20 text-xl sm:text-2xl shrink-0">
-            👩‍🍳
-          </div>
-          <div>
-            <div class="flex items-center gap-1.5">
-              <h1 class="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight leading-none">
-                DishCovery
-              </h1>
-              <span class="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                Pakistani & Italian
-              </span>
-            </div>
-            <p class="text-[11px] sm:text-xs text-gray-500 hidden xs:block mt-0.5">
-              Zero Decision Fatigue • 7-Day Meal Planner (21 Meals)
-            </p>
-          </div>
-        </div>
-
-        <!-- Center: Cuisine Filter Selector (Desktop / Tablet) -->
-        <div class="hidden md:flex items-center bg-warm-ivory p-1 rounded-xl border border-warm-border">
-          <button onclick="setCuisinePreference('all')" id="btnCuisineAll" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-emerald-800 shadow-sm border border-emerald-200">
-            🇵🇰 Pakistani & 🇮🇹 Italian
-          </button>
-          <button onclick="setCuisinePreference('pakistani')" id="btnCuisinePakistani" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-gray-600 hover:text-gray-900">
-            🇵🇰 Pakistani Only
-          </button>
-          <button onclick="setCuisinePreference('italian')" id="btnCuisineItalian" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-gray-600 hover:text-gray-900">
-            🇮🇹 Italian Only
-          </button>
-        </div>
-
-        <!-- Right Side: Stats Pill & 1-Click Generate Action -->
-        <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Inventory status counter pill -->
-          <button onclick="switchTab('inventory')" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 transition-colors">
-            <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
-            <span id="navPantryCount">0</span> In Kitchen
-          </button>
-
-          <!-- Primary CTA: Generate 7-Day Plan -->
-          <button onclick="generateWeeklyPlan(true)" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-700/25 active:scale-95 transition-all">
-            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-200"></i>
-            <span>Generate 7-Day Plan</span>
-          </button>
-        </div>
-
+        <!-- Quick Help / Reset Button -->
+        <button id="btn-quick-reset" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" title="Reset Kitchen Selections" aria-label="Reset Kitchen">
+          <span class="material-symbols-outlined text-[20px]">restart_alt</span>
+        </button>
       </div>
 
-      <!-- Mobile Cuisine Selector Bar -->
-      <div class="md:hidden pb-2.5 flex items-center justify-between border-t border-warm-border/60 pt-2 gap-1">
-        <span class="text-[11px] font-medium text-gray-500">Cuisine:</span>
-        <div class="flex items-center gap-1 bg-warm-ivory p-0.5 rounded-lg border border-warm-border text-xs">
-          <button onclick="setCuisinePreference('all')" id="mBtnCuisineAll" class="px-2 py-1 rounded-md text-[11px] font-semibold bg-white text-emerald-800 shadow-xs border border-emerald-200">
-            Mix Both
-          </button>
-          <button onclick="setCuisinePreference('pakistani')" id="mBtnCuisinePakistani" class="px-2 py-1 rounded-md text-[11px] font-semibold text-gray-600">
-            🇵🇰 Pakistani
-          </button>
-          <button onclick="setCuisinePreference('italian')" id="mBtnCuisineItalian" class="px-2 py-1 rounded-md text-[11px] font-semibold text-gray-600">
-            🇮🇹 Italian
-          </button>
-        </div>
-      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-6xl mx-auto px-4 flex border-t border-slate-100">
+      <button id="nav-btn-kitchen" class="nav-tab flex-1 sm:flex-none sm:px-6 py-3 flex items-center justify-center gap-2 text-sm font-semibold border-b-2 border-brand-600 text-brand-600 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">kitchen</span>
+        <span>My Kitchen <span id="badge-pantry-count" class="ml-1 px-1.5 py-0.2 bg-brand-100 text-brand-800 rounded-full text-xs">0</span></span>
+      </button>
+
+      <button id="nav-btn-plan" class="nav-tab flex-1 sm:flex-none sm:px-6 py-3 flex items-center justify-center gap-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors relative">
+        <span class="material-symbols-outlined text-[20px]">calendar_month</span>
+        <span>7-Day Plan (21 Meals)</span>
+        <span id="plan-ready-pill" class="hidden absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full"></span>
+      </button>
+
+      <button id="nav-btn-recipes" class="nav-tab flex-1 sm:flex-none sm:px-6 py-3 flex items-center justify-center gap-2 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">menu_book</span>
+        <span>Cookable Dishes <span id="badge-eligible-count" class="ml-1 px-1.5 py-0.2 bg-slate-100 text-slate-700 rounded-full text-xs">0</span></span>
+      </button>
     </div>
   </header>
 
-  <!-- ======================================================================
-       MAIN TAB NAVIGATION BAR
-       ====================================================================== -->
-  <nav class="bg-white border-b border-warm-border sticky top-16 sm:top-20 z-30 shadow-xs no-print">
-    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-around sm:justify-start sm:gap-4 h-12">
-        
-        <!-- Tab 1: Available Ingredients -->
-        <button onclick="switchTab('inventory')" id="tabBtnInventory" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors border-b-2 border-transparent">
-          <i data-lucide="refrigerator" class="w-4 h-4"></i>
-          <span>Ingredients</span>
-          <span id="tabInventoryBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">
-            0
-          </span>
-        </button>
+  <!-- Main Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 pb-28">
 
-        <!-- Tab 2: 7-Day Meal Plan (Active default) -->
-        <button onclick="switchTab('plan')" id="tabBtnPlan" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-emerald-800 border-b-2 border-emerald-700 transition-colors">
-          <i data-lucide="calendar-days" class="w-4 h-4 text-emerald-700"></i>
-          <span>7-Day Plan</span>
-          <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">
-            21 Meals
-          </span>
-        </button>
-
-        <!-- Tab 3: Browse Recipes -->
-        <button onclick="switchTab('recipes')" id="tabBtnRecipes" class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors border-b-2 border-transparent">
-          <i data-lucide="book-open" class="w-4 h-4"></i>
-          <span>All Recipes</span>
-          <span id="tabRecipesBadge" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-teal-100 text-teal-800">
-            0
-          </span>
-        </button>
-
-      </div>
-    </div>
-  </nav>
-
-  <!-- ======================================================================
-       MAIN CONTENT CONTAINER
-       ====================================================================== -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
-    
-    <!-- ====================================================================
-         VIEW 1: 7-DAY MEAL PLAN (21 MEALS)
-         ==================================================================== -->
-    <section id="viewPlan" class="space-y-6">
+    <!-- ========================================== -->
+    <!-- TAB 1: MY KITCHEN INGREDIENTS               -->
+    <!-- ========================================== -->
+    <section id="tab-kitchen" class="space-y-6">
       
-      <!-- Top Plan Action Banner -->
-      <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xl">✨</span>
-            <h2 class="text-base sm:text-lg font-bold text-gray-900">
-              Your Weekly 7-Day Family Meal Plan
-            </h2>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-700 text-white font-semibold shadow-xs">
-              21 Meals
-            </span>
-          </div>
-          <p class="text-xs sm:text-sm text-gray-600 mt-1">
-            Strictly crafted using <strong class="text-emerald-800 font-semibold">only ingredients available in your kitchen</strong>. Zero grocery shopping runs needed!
-          </p>
-        </div>
-
-        <!-- Actions: WhatsApp Share, Print, Regenerate -->
-        <div class="flex items-center flex-wrap gap-2 sm:gap-3 no-print">
-          <button onclick="openWhatsAppModal()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm shadow-sm transition-all active:scale-95">
-            <i data-lucide="share-2" class="w-4 h-4"></i>
-            <span>Share to WhatsApp</span>
-          </button>
-          
-          <button onclick="window.print()" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-warm-border hover:bg-warm-ivory text-gray-700 font-semibold text-xs sm:text-sm shadow-xs transition-colors">
-            <i data-lucide="printer" class="w-4 h-4 text-gray-500"></i>
-            <span>Print / Fridge PDF</span>
-          </button>
-
-          <button onclick="generateWeeklyPlan(false)" class="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-emerald-200 text-emerald-800 hover:bg-emerald-50 font-semibold text-xs sm:text-sm shadow-xs transition-colors">
-            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-            <span>Shuffle Plan</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Ingredient Availability Notification Box -->
-      <div id="planEligibilityAlert" class="hidden"></div>
-
-      <!-- Days Grid (Monday - Sunday) -->
-      <div id="planDaysContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
-        <!-- Rendered dynamically via app.js -->
-      </div>
-
-    </section>
-
-
-    <!-- ====================================================================
-         VIEW 2: AVAILABLE INGREDIENTS (PANTRY SELECTOR)
-         ==================================================================== -->
-    <section id="viewInventory" class="hidden space-y-6">
-      
-      <!-- Welcome Header & Problem Statement -->
-      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-warm-border shadow-xs">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-lg sm:text-xl font-extrabold text-gray-900 flex items-center gap-2">
-              <span>🥕 Kitchen Inventory Check</span>
-            </h2>
-            <p class="text-xs sm:text-sm text-gray-600 mt-1 max-w-2xl">
-              Tap the ingredients you currently have at home. Our rule is 100% strict: <strong class="text-emerald-800">If you do not have the required ingredients, we will NEVER suggest that recipe!</strong>
+      <!-- Welcome Callout for Desi Moms -->
+      <div class="bg-gradient-to-r from-orange-50 via-amber-50 to-orange-100/60 border border-orange-200/80 rounded-3xl p-5 md:p-6 shadow-sm">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="space-y-1.5 max-w-2xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full text-xs font-bold text-brand-700 shadow-xs border border-orange-200">
+              <span>👩‍🍳 Desi Mom Stress Reliever</span>
+              <span class="text-slate-300">•</span>
+              <span>Only Desi & Italian Recipes</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">What's in your kitchen today?</h2>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              Check off the ingredients you already have at home. Dishcovery will <strong class="text-slate-800">only suggest recipes you can actually make right now</strong> — no missing ingredients, no last-minute grocery runs!
             </p>
           </div>
 
-          <!-- Quick Action Button to Plan -->
-          <button onclick="switchTab('plan'); generateWeeklyPlan(false);" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-700/20 transition-all shrink-0">
-            <i data-lucide="sparkles" class="w-4 h-4 text-emerald-200"></i>
-            <span>Done! Generate Plan</span>
+          <!-- Quick Pantry Presets -->
+          <div class="flex flex-wrap md:flex-col gap-2 shrink-0 w-full md:w-auto">
+            <button id="preset-desi" class="flex-1 md:flex-none px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95">
+              <span>🇵🇰 Standard Desi Kitchen</span>
+            </button>
+            <button id="preset-both" class="flex-1 md:flex-none px-4 py-2 bg-white hover:bg-amber-50 text-brand-800 border border-brand-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all active:scale-95">
+              <span>🇵🇰 + 🇮🇹 Desi & Italian Home</span>
+            </button>
+            <button id="preset-clear" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
+              <span>Clear All</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Realtime Cookable Status Bar -->
+        <div class="mt-4 pt-4 border-t border-orange-200/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2 font-medium text-slate-700">
+            <span class="flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+            <span><strong id="status-cookable-text" class="text-emerald-700 font-bold">0 recipes cookable</strong> right now</span>
+          </div>
+
+          <!-- Quick Action to Generate -->
+          <button id="btn-goto-plan-top" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 flex items-center gap-1.5 transition-all active:scale-95">
+            <span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+            <span>Generate 7-Day Plan (21 Meals)</span>
           </button>
         </div>
+      </div>
 
-        <!-- Quick 1-Tap Pantry Presets -->
-        <div class="mt-4 pt-4 border-t border-warm-border">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
-              Quick 1-Tap Pantry Presets:
-            </span>
-            <button onclick="clearAllIngredients()" class="text-xs text-red-600 hover:text-red-700 font-semibold">
-              Clear All
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button onclick="applyPreset('pakistani_staples')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 text-xs font-semibold transition-all">
-              🇵🇰 Pakistani Kitchen Staples
-            </button>
-            <button onclick="applyPreset('pakistani_and_italian')" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-900 text-xs font-semibold transition-all">
-              🇵🇰 + 🇮🇹 Pakistani & Italian Kitchen
-            </button>
-            <button onclick="applyPreset('italian_only')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-semibold transition-all">
-              🇮🇹 Italian Essentials
-            </button>
-            <button onclick="applyPreset('minimal_veggie')" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-800 text-xs font-semibold transition-all">
-              🌱 Minimal Veggie Staples
-            </button>
-            <button onclick="selectAllIngredients()" class="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-800 text-xs font-semibold transition-all">
-              Select All (Full Kitchen)
-            </button>
-          </div>
+      <!-- Search & Custom Ingredient Input -->
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex-1 relative">
+          <span class="material-symbols-outlined absolute left-3.5 top-3 text-slate-400 text-[20px]">search</span>
+          <input id="ingredient-search-input" type="text" placeholder="Search ingredient (e.g., Potatoes, Chicken, Pasta, Paneer)..." 
+                 class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400" />
         </div>
-
-        <!-- Search Bar & Category Filter Pills -->
-        <div class="mt-4 pt-4 border-t border-warm-border flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <!-- Search Input -->
-          <div class="relative flex-1">
-            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="ingredientSearchInput" oninput="handleIngredientSearch(this.value)" placeholder="Search ingredients (e.g. Chicken, Potato, Pasta, Eggs, Tomato, Rice...)" class="w-full pl-9 pr-4 py-2 bg-warm-ivory rounded-xl border border-warm-border text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all">
-          </div>
-
-          <!-- Category Filter Pills -->
-          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="ingredientCategoryFilters">
-            <!-- Rendered in app.js -->
-          </div>
+        <div class="flex gap-2">
+          <input id="custom-ingredient-input" type="text" placeholder="Add custom item..." 
+                 class="px-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder:text-slate-400 flex-1 sm:w-48" />
+          <button id="btn-add-custom" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-sm font-semibold flex items-center gap-1 shrink-0 transition-all active:scale-95">
+            <span class="material-symbols-outlined text-[18px]">add</span>
+            <span>Add</span>
+          </button>
         </div>
       </div>
 
-      <!-- Ingredient Cards Grouped by Categories -->
-      <div id="ingredientsGroupContainer" class="space-y-6">
-        <!-- Rendered in app.js -->
+      <!-- Ingredient Categories Accordion / Grid -->
+      <div id="ingredient-categories-container" class="space-y-5">
+        <!-- Rendered dynamically via JavaScript -->
       </div>
 
-      <!-- Floating bottom CTA for mobile -->
-      <div class="sticky bottom-4 z-20 max-w-md mx-auto block no-print">
-        <button onclick="switchTab('plan'); generateWeeklyPlan(false);" class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-emerald-700/30 flex items-center justify-center gap-2 active:scale-98 transition-all">
-          <i data-lucide="sparkles" class="w-4 h-4 text-emerald-200"></i>
-          <span id="btnFloatingPlanText">Ready! Generate 7-Day Plan (0 Recipes)</span>
-        </button>
+      <!-- Spices Notice (Assumed Staples) -->
+      <div class="bg-amber-50/80 border border-amber-200/70 rounded-2xl p-4 flex items-start gap-3 text-xs text-amber-900">
+        <span class="material-symbols-outlined text-amber-700 text-[22px] shrink-0 mt-0.5">info</span>
+        <div>
+          <strong class="font-bold">Basic Household Spices Assumed:</strong>
+          <p class="text-amber-800/90 mt-0.5">
+            Dishcovery automatically assumes standard kitchen seasonings are on your spice rack: Salt, Black Pepper, Red Chilli / Paprika, Turmeric (Haldi), and Cumin seeds (Zeera). All special ingredients like proteins, vegetables, lentils, pasta, and dairy must be selected above.
+          </p>
+        </div>
       </div>
 
     </section>
 
-
-    <!-- ====================================================================
-         VIEW 3: BROWSE ALL RECIPES & COOKABILITY STATUS
-         ==================================================================== -->
-    <section id="viewRecipes" class="hidden space-y-6">
+    <!-- ========================================== -->
+    <!-- TAB 2: 7-DAY MEAL PLAN (21 MEALS)           -->
+    <!-- ========================================== -->
+    <section id="tab-plan" class="space-y-6 hidden">
       
-      <!-- Recipe Filter Header -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-warm-border shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <!-- Plan Header Banner -->
+      <div class="bg-white border border-slate-200/80 rounded-3xl p-5 md:p-6 shadow-xs">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full text-xs font-bold border border-emerald-200">
+                ✅ Complete 21 Meals Ready
+              </span>
+              <span class="text-xs text-slate-500 font-medium">Monday — Sunday</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">Your 7-Day Stress-Free Meal Plan</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              Breakfast, Lunch, and Dinner planned for all 7 days using strictly your available home ingredients.
+            </p>
+          </div>
+
+          <!-- Plan Action Buttons -->
+          <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <button id="btn-regenerate-plan" class="flex-1 md:flex-none px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 flex items-center justify-center gap-1.5 transition-all active:scale-95">
+              <span class="material-symbols-outlined text-[18px]">casino</span>
+              <span>Re-roll Unlocked</span>
+            </button>
+            <button id="btn-copy-plan" class="flex-1 md:flex-none px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95" title="Copy to WhatsApp">
+              <span class="material-symbols-outlined text-[18px]">content_copy</span>
+              <span>Copy for WhatsApp</span>
+            </button>
+            <button id="btn-print-plan" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 no-print" title="Print for Fridge">
+              <span class="material-symbols-outlined text-[18px]">print</span>
+              <span>Print</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Meal Curation Filter Preference -->
+        <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold text-slate-600">Cuisine Mix:</span>
+            <div class="inline-flex p-1 bg-slate-100 rounded-xl" id="cuisine-preference-group">
+              <button class="cuisine-pref-btn px-3 py-1 rounded-lg font-bold text-xs bg-white text-slate-900 shadow-xs" data-pref="balanced">Balanced Mix</button>
+              <button class="cuisine-pref-btn px-3 py-1 rounded-lg font-medium text-xs text-slate-600 hover:text-slate-900" data-pref="mostly-desi">Mostly Desi 🇵🇰</button>
+              <button class="cuisine-pref-btn px-3 py-1 rounded-lg font-medium text-xs text-slate-600 hover:text-slate-900" data-pref="mostly-italian">Mostly Italian 🇮🇹</button>
+            </div>
+          </div>
+          
+          <!-- View Toggle: Day by Day vs Full Week -->
+          <div class="inline-flex p-1 bg-slate-100 rounded-xl" id="view-mode-group">
+            <button id="view-mode-day" class="view-mode-btn px-3 py-1 rounded-lg font-bold text-xs bg-white text-slate-900 shadow-xs">Day View</button>
+            <button id="view-mode-week" class="view-mode-btn px-3 py-1 rounded-lg font-medium text-xs text-slate-600 hover:text-slate-900">Full 7-Day Grid</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insufficient Ingredients Notice (Only shown if cookable meals < 21) -->
+      <div id="insufficient-warning" class="hidden bg-amber-50 border border-amber-300 rounded-3xl p-5 text-amber-900 space-y-3">
+        <div class="flex items-center gap-2 font-bold text-base">
+          <span class="material-symbols-outlined text-amber-600">warning</span>
+          <span>More Ingredients Recommended for a Full 21-Meal Variety</span>
+        </div>
+        <p class="text-xs sm:text-sm text-amber-800">
+          You currently have <strong id="warning-cookable-count">0</strong> unique recipes available. To generate a full 7-day plan (21 unique meals) without repeating dishes, please check off a few more staple items in <button class="underline font-bold text-amber-900" onclick="window.DishcoveryApp.switchTab('kitchen')">My Kitchen</button> (like Eggs, Rice, Potatoes, Pasta, or Chicken).
+        </p>
+      </div>
+
+      <!-- Mobile Day Pills (Day View Selector) -->
+      <div id="day-selector-bar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <!-- Rendered dynamically: Mon, Tue, Wed, Thu, Fri, Sat, Sun -->
+      </div>
+
+      <!-- Meal Cards Container (Day View or Full 7-Day View) -->
+      <div id="plan-display-container" class="space-y-6">
+        <!-- Injected dynamically -->
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: COOKABLE RECIPES BROWSER             -->
+    <!-- ========================================== -->
+    <section id="tab-recipes" class="space-y-6 hidden">
+      
+      <!-- Browse Header -->
+      <div class="bg-white border border-slate-200/80 rounded-3xl p-5 md:p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
-            <span>📖 Recipe Catalog & Cookability</span>
-          </h2>
-          <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
-            Green cards are 100% ready to cook with your ingredients. Red cards show what items you are missing.
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">What You Can Cook Right Now</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Browse all recipes that 100% match your selected kitchen ingredients. Zero missing items!
           </p>
         </div>
 
-        <!-- Filter Buttons -->
-        <div class="flex items-center gap-2 flex-wrap">
-          <div class="flex items-center bg-warm-ivory p-0.5 rounded-xl border border-warm-border text-xs">
-            <button onclick="setRecipeMealFilter('all')" id="btnFilterMealAll" class="px-2.5 py-1.5 rounded-lg font-semibold bg-white text-emerald-800 shadow-xs border border-emerald-200">
-              All Slots
-            </button>
-            <button onclick="setRecipeMealFilter('breakfast')" id="btnFilterMealBreakfast" class="px-2.5 py-1.5 rounded-lg font-semibold text-gray-600 hover:text-gray-900">
-              🌅 Breakfast
-            </button>
-            <button onclick="setRecipeMealFilter('lunch')" id="btnFilterMealLunch" class="px-2.5 py-1.5 rounded-lg font-semibold text-gray-600 hover:text-gray-900">
-              ☀️ Lunch
-            </button>
-            <button onclick="setRecipeMealFilter('dinner')" id="btnFilterMealDinner" class="px-2.5 py-1.5 rounded-lg font-semibold text-gray-600 hover:text-gray-900">
-              🌙 Dinner
-            </button>
-          </div>
-
-          <div class="flex items-center bg-warm-ivory p-0.5 rounded-xl border border-warm-border text-xs">
-            <button onclick="setRecipeCookableFilter('eligible')" id="btnFilterCookableOnly" class="px-2.5 py-1.5 rounded-lg font-semibold bg-white text-emerald-800 shadow-xs border border-emerald-200">
-              ✅ Ready Now
-            </button>
-            <button onclick="setRecipeCookableFilter('all')" id="btnFilterCookableAll" class="px-2.5 py-1.5 rounded-lg font-semibold text-gray-600 hover:text-gray-900">
-              All Recipes
-            </button>
-          </div>
+        <!-- Filter Chips: Cuisine & Meal Type -->
+        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+          <select id="filter-cuisine" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
+            <option value="all">All Cuisines (Desi & Italian)</option>
+            <option value="Desi">Desi Pakistani Only 🇵🇰</option>
+            <option value="Italian">Italian Only 🇮🇹</option>
+          </select>
+          <select id="filter-mealtype" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
+            <option value="all">All Meal Times</option>
+            <option value="Breakfast">🌅 Breakfast</option>
+            <option value="Lunch">☀️ Lunch</option>
+            <option value="Dinner">🌙 Dinner</option>
+          </select>
         </div>
       </div>
 
       <!-- Recipes Grid -->
-      <div id="recipeCatalogGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Rendered in app.js -->
+      <div id="all-eligible-recipes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Empty State if no recipes match -->
+      <div id="recipes-empty-state" class="hidden bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-3">
+        <div class="w-16 h-16 bg-orange-100 text-brand-600 rounded-full mx-auto flex items-center justify-center">
+          <span class="material-symbols-outlined text-[32px]">inventory_2</span>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">No Cookable Recipes Found Yet</h3>
+        <p class="text-sm text-slate-500 max-w-md mx-auto">
+          You haven't selected enough ingredients to prepare a full meal. Go to the "My Kitchen" tab and select your available pantry items or click "Standard Desi Kitchen" to get started instantly!
+        </p>
+        <button onclick="window.DishcoveryApp.switchTab('kitchen')" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition-all shadow-md">
+          Open My Kitchen
+        </button>
       </div>
 
     </section>
 
   </main>
 
+  <!-- Sticky Mobile Bottom Bar CTA (Quick Action for Moms) -->
+  <div id="mobile-bottom-bar" class="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-3 pb-safe shadow-lg flex items-center justify-between sm:hidden">
+    <div>
+      <div class="text-xs font-extrabold text-slate-900" id="mobile-status-summary">0 ingredients selected</div>
+      <div class="text-[11px] text-emerald-600 font-semibold" id="mobile-recipes-summary">0 recipes ready</div>
+    </div>
+    <button id="btn-mobile-plan-cta" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 flex items-center gap-1.5 transition-all">
+      <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+      <span>Generate 7-Day Plan</span>
+    </button>
+  </div>
 
-  <!-- ======================================================================
-       RECIPE DETAIL MODAL
-       ====================================================================== -->
-  <div id="recipeModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 modal-backdrop hidden">
-    <div class="bg-white w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-warm-border animate-in fade-in zoom-in duration-200">
+  <!-- ========================================== -->
+  <!-- RECIPE DETAIL MODAL                        -->
+  <!-- ========================================== -->
+  <div id="recipe-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden my-8 transform transition-all border border-slate-100 flex flex-col max-h-[90vh]">
       
       <!-- Modal Header -->
-      <div class="p-5 sm:p-6 border-b border-warm-border flex items-start justify-between bg-gradient-to-r from-emerald-50/60 to-amber-50/40">
-        <div>
-          <div class="flex items-center gap-2 mb-1">
-            <span id="modalCuisineBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold"></span>
-            <span id="modalMealSlotBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700 font-medium"></span>
-          </div>
-          <h3 id="modalRecipeTitle" class="text-xl sm:text-2xl font-extrabold text-gray-900 leading-tight"></h3>
-          <p id="modalRecipeSubtitle" class="text-xs sm:text-sm font-semibold text-emerald-800 mt-0.5"></p>
-        </div>
-        <button onclick="closeRecipeModal()" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors shrink-0">
-          <i data-lucide="x" class="w-5 h-5"></i>
+      <div class="relative bg-gradient-to-r from-orange-50 to-amber-50 p-6 border-b border-orange-100">
+        <button id="btn-close-modal" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 hover:bg-white text-slate-500 hover:text-slate-800 flex items-center justify-center shadow-xs transition-colors">
+          <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
+        <div class="flex items-center gap-2 mb-2">
+          <span id="modal-cuisine-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold">Cuisine</span>
+          <span id="modal-mealtype-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white text-slate-700 border border-slate-200">Meal</span>
+          <span id="modal-time-badge" class="flex items-center gap-1 text-xs text-slate-600 font-medium">
+            <span class="material-symbols-outlined text-[15px] text-brand-600">schedule</span>
+            <span id="modal-time-text">30 min</span>
+          </span>
+        </div>
+        <h3 id="modal-recipe-title" class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Recipe Title</h3>
+        <p id="modal-recipe-desc" class="text-xs sm:text-sm text-slate-600 mt-1">Short comforting description.</p>
       </div>
 
       <!-- Modal Body (Scrollable) -->
-      <div class="p-5 sm:p-6 overflow-y-auto space-y-5 text-sm">
+      <div class="p-6 space-y-6 overflow-y-auto text-sm">
         
-        <!-- Quick Meta Info (Times & Difficulty) -->
-        <div class="grid grid-cols-3 gap-2 p-3 bg-warm-ivory rounded-2xl border border-warm-border text-center text-xs">
-          <div>
-            <span class="text-gray-400 block text-[10px] uppercase font-bold">Prep Time</span>
-            <span id="modalPrepTime" class="font-bold text-gray-800"></span>
-          </div>
-          <div class="border-x border-warm-border/80">
-            <span class="text-gray-400 block text-[10px] uppercase font-bold">Cook Time</span>
-            <span id="modalCookTime" class="font-bold text-gray-800"></span>
-          </div>
-          <div>
-            <span class="text-gray-400 block text-[10px] uppercase font-bold">Difficulty</span>
-            <span id="modalDifficulty" class="font-bold text-gray-800"></span>
-          </div>
-        </div>
-
-        <!-- Family Kitchen Secret Pro Tip -->
-        <div id="modalMomTipBox" class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-amber-950 flex items-start gap-3">
-          <span class="text-xl shrink-0">💡</span>
-          <div>
-            <span class="font-bold text-amber-900 block text-xs uppercase tracking-wider mb-0.5">Kitchen Cooking Secret</span>
-            <p id="modalMomTip" class="text-xs sm:text-sm text-amber-900 leading-relaxed"></p>
-          </div>
-        </div>
-
-        <!-- Required Ingredients Checklist -->
+        <!-- Ingredients Section -->
         <div>
-          <h4 class="font-bold text-gray-900 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
-            Required Ingredients (Checked at Home):
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 mb-3">
+            <span class="material-symbols-outlined text-[18px] text-emerald-600">check_circle</span>
+            Ingredients (All available in your kitchen)
           </h4>
-          <div id="modalRequiredIngredients" class="flex flex-wrap gap-1.5">
-            <!-- Rendered in app.js -->
-          </div>
+          <ul id="modal-ingredients-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <!-- Injected list with green ticks -->
+          </ul>
         </div>
 
-        <!-- Optional / Enhancers -->
-        <div id="modalOptionalIngredientsSection">
-          <h4 class="font-bold text-gray-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-gray-400"></i>
-            Optional Taste Enhancers:
-          </h4>
-          <div id="modalOptionalIngredients" class="flex flex-wrap gap-1.5">
-            <!-- Rendered in app.js -->
-          </div>
-        </div>
-
-        <!-- Step-by-Step Cooking Instructions -->
+        <!-- Cooking Steps -->
         <div>
-          <h4 class="font-bold text-gray-900 text-xs uppercase tracking-wider mb-3 flex items-center gap-1.5">
-            <i data-lucide="flame" class="w-4 h-4 text-emerald-700"></i>
-            Simple Cooking Method:
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 mb-3">
+            <span class="material-symbols-outlined text-[18px] text-brand-600">format_list_numbered</span>
+            Step-by-Step Cooking Method
           </h4>
-          <ol id="modalInstructionsList" class="space-y-2.5">
-            <!-- Rendered in app.js -->
+          <ol id="modal-instructions-list" class="space-y-3 text-slate-700">
+            <!-- Injected steps -->
           </ol>
+        </div>
+
+        <!-- Mom's Pro Tip -->
+        <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-4 flex items-start gap-3">
+          <span class="text-xl">💡</span>
+          <div>
+            <div class="text-xs font-bold text-amber-900">Mom's Quick Kitchen Tip</div>
+            <p id="modal-tip-text" class="text-xs text-amber-800 mt-0.5">Tip text here.</p>
+          </div>
         </div>
 
       </div>
 
       <!-- Modal Footer -->
-      <div class="p-4 border-t border-warm-border bg-warm-ivory/50 flex items-center justify-end">
-        <button onclick="closeRecipeModal()" class="px-5 py-2 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-semibold text-xs sm:text-sm">
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-xs text-slate-500">Servings: <strong>4-6 Persons</strong></span>
+        <button id="btn-modal-done" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all">
           Close Recipe
         </button>
       </div>
@@ -455,107 +447,1823 @@
     </div>
   </div>
 
-
-  <!-- ======================================================================
-       SWAP MEAL MODAL
-       ====================================================================== -->
-  <div id="swapModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 modal-backdrop hidden">
-    <div class="bg-white w-full max-w-lg max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-warm-border animate-in fade-in zoom-in duration-150">
-      
-      <div class="p-5 border-b border-warm-border flex items-center justify-between bg-emerald-50/50">
-        <div>
-          <h3 class="text-lg font-bold text-gray-900" id="swapModalTitle">
-            Swap Meal
-          </h3>
-          <p class="text-xs text-gray-500 mt-0.5">
-            Select another dish that only uses ingredients currently in your kitchen.
-          </p>
-        </div>
-        <button onclick="closeSwapModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-      <div class="p-4 overflow-y-auto space-y-2" id="swapOptionsContainer">
-        <!-- Rendered in app.js -->
-      </div>
-
-      <div class="p-3 border-t border-warm-border bg-warm-ivory text-right">
-        <button onclick="closeSwapModal()" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900">
-          Cancel
-        </button>
-      </div>
-
-    </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl text-xs font-semibold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300">
+    <span class="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
+    <span id="toast-text">Toast message</span>
   </div>
 
+  <!-- ============================================================= -->
+  <!-- APPLICATION JAVASCRIPT & DATABASE                             -->
+  <!-- ============================================================= -->
+  <script>
+    (function () {
+      'use strict';
 
-  <!-- ======================================================================
-       WHATSAPP SHARING MODAL
-       ====================================================================== -->
-  <div id="whatsappModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 modal-backdrop hidden">
-    <div class="bg-white w-full max-w-md max-h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-warm-border">
+      // -------------------------------------------------------------
+      // 1. COMPREHENSIVE INGREDIENT LIST (ORGANIZED FOR DESI & ITALIAN MOMS)
+      // -------------------------------------------------------------
+      const INGREDIENT_CATEGORIES = [
+        {
+          id: 'grains_lentils',
+          name: 'Grains, Flours & Lentils',
+          icon: '🌾',
+          items: [
+            { id: 'atta', name: 'Atta (Whole Wheat Flour)', popular: true },
+            { id: 'basmati_rice', name: 'Basmati Rice', popular: true },
+            { id: 'maida', name: 'Maida (All-Purpose Flour)' },
+            { id: 'pasta', name: 'Pasta (Penne, Spaghetti, Macaroni)', popular: true },
+            { id: 'moong_masoor_daal', name: 'Moong / Masoor Daal (Yellow & Orange Lentils)', popular: true },
+            { id: 'chana_daal', name: 'Chana Daal (Split Chickpeas)' },
+            { id: 'chickpeas', name: 'Chickpeas (Kabuli Chana / Safaid Cholay)', popular: true },
+            { id: 'lobia', name: 'Lobia (Black-Eyed Peas / White Beans)' },
+            { id: 'bread', name: 'Bread / Slices', popular: true },
+            { id: 'besan', name: 'Besan (Gram Flour)' }
+          ]
+        },
+        {
+          id: 'vegetables_aromatics',
+          name: 'Vegetables & Aromatics',
+          icon: '🥔',
+          items: [
+            { id: 'onions', name: 'Onions (Piyaz)', popular: true },
+            { id: 'garlic', name: 'Garlic (Lehsan)', popular: true },
+            { id: 'ginger', name: 'Ginger (Adrak)', popular: true },
+            { id: 'tomatoes', name: 'Tomatoes (Tamatar)', popular: true },
+            { id: 'potatoes', name: 'Potatoes (Aloo)', popular: true },
+            { id: 'green_chillies', name: 'Green Chillies (Hari Mirch)', popular: true },
+            { id: 'spinach', name: 'Spinach (Palak)', popular: true },
+            { id: 'peas', name: 'Green Peas (Matar)', popular: true },
+            { id: 'cauliflower', name: 'Cauliflower (Phool Gobi)' },
+            { id: 'okra', name: 'Okra (Bhindi)' },
+            { id: 'bell_pepper', name: 'Bell Pepper (Shimla Mirch)' },
+            { id: 'lemon', name: 'Lemon (Nimbu)', popular: true }
+          ]
+        },
+        {
+          id: 'meat_poultry_dairy',
+          name: 'Meats, Eggs & Dairy',
+          icon: '🍗',
+          items: [
+            { id: 'chicken', name: 'Chicken (Bone-in or Boneless)', popular: true },
+            { id: 'keema', name: 'Minced Meat (Chicken or Beef Keema)', popular: true },
+            { id: 'beef_mutton', name: 'Mutton / Beef (Gosht)' },
+            { id: 'eggs', name: 'Eggs (Anday)', popular: true },
+            { id: 'milk', name: 'Milk (Doodh)', popular: true },
+            { id: 'yogurt', name: 'Plain Yogurt (Dahi)', popular: true },
+            { id: 'cheese', name: 'Cheese (Mozzarella, Cheddar or Parmesan)', popular: true },
+            { id: 'paneer', name: 'Paneer' },
+            { id: 'butter', name: 'Butter / Makhan', popular: true }
+          ]
+        },
+        {
+          id: 'oils_herbs_sauces',
+          name: 'Oils, Sauces & Fresh Herbs',
+          icon: '🌿',
+          items: [
+            { id: 'cooking_oil', name: 'Cooking Oil / Ghee', popular: true },
+            { id: 'olive_oil', name: 'Olive Oil', popular: true },
+            { id: 'tomato_puree', name: 'Tomato Puree / Passata', popular: true },
+            { id: 'fresh_coriander', name: 'Fresh Coriander (Hara Dhaniya)', popular: true },
+            { id: 'fresh_mint', name: 'Fresh Mint (Pudina)' },
+            { id: 'fresh_basil', name: 'Fresh Basil or Dried Italian Herbs', popular: true },
+            { id: 'sugar', name: 'Sugar' }
+          ]
+        }
+      ];
+
+      // -------------------------------------------------------------
+      // 2. STRICT RECIPE DATABASE (ONLY DESI PAKISTANI & ITALIAN)
+      //    No calories, no external shopping, English only.
+      // -------------------------------------------------------------
+      const RECIPES_DB = [
+        // ================= DESI BREAKFAST =================
+        {
+          id: 'desi_b_1',
+          title: 'Crispy Aloo Paratha with Dahi',
+          cuisine: 'Desi',
+          mealType: 'Breakfast',
+          prepTime: '15m',
+          cookTime: '15m',
+          required: ['atta', 'potatoes', 'green_chillies', 'cooking_oil', 'yogurt'],
+          description: 'Flaky golden whole-wheat flatbread stuffed with spiced mashed potatoes, served with cool yogurt.',
+          instructions: [
+            'Boil and peel potatoes, then mash smoothly with chopped green chillies, salt, and cumin.',
+            'Divide atta dough into pairs of small round pedas.',
+            'Place potato filling between two rolled discs, seal edges firmly and roll gently.',
+            'Cook on a hot tawa with a spoonful of ghee or oil until golden and crisp on both sides.',
+            'Serve steaming hot with fresh chilled dahi (yogurt).'
+          ],
+          tip: 'Roll with a gentle hand from the center outward so the potato stuffing stays evenly distributed without tearing the dough.'
+        },
+        {
+          id: 'desi_b_2',
+          title: 'Pakistani Masala Omelette & Paratha',
+          cuisine: 'Desi',
+          mealType: 'Breakfast',
+          prepTime: '10m',
+          cookTime: '10m',
+          required: ['eggs', 'onions', 'tomatoes', 'green_chillies', 'cooking_oil', 'atta'],
+          description: 'Fluffy beaten eggs infused with finely diced onions, tomatoes, and green chillies, paired with a hot paratha.',
+          instructions: [
+            'In a bowl, beat eggs vigorously until light and airy.',
+            'Stir in finely minced onion, diced tomato, green chillies, salt, and turmeric.',
+            'Heat oil in a frying pan over medium flame and pour the egg mixture evenly.',
+            'Flip when the edges set and bottom turns golden; cook through for another minute.',
+            'Knead and cook a fresh crispy paratha on the tawa to serve alongside.'
+          ],
+          tip: 'Chop onions and tomatoes very fine so the omelette stays structurally intact when you flip it.'
+        },
+        {
+          id: 'desi_b_3',
+          title: 'Anda Ghotala (Spicy Egg Bhurji)',
+          cuisine: 'Desi',
+          mealType: 'Breakfast',
+          prepTime: '10m',
+          cookTime: '12m',
+          required: ['eggs', 'onions', 'tomatoes', 'garlic', 'green_chillies', 'cooking_oil'],
+          description: 'Street-style Karachi scrambled eggs simmered in a spiced tomato-onion masala gravy.',
+          instructions: [
+            'Heat oil in a pan, sauté finely sliced onions until soft and golden.',
+            'Add minced garlic, tomatoes, chopped green chillies, turmeric, and salt. Cook until tomatoes break down into a rich masala.',
+            'Crack eggs directly into the pan and stir vigorously over low-medium heat.',
+            'Cook until eggs scramble softly and absorb all the juicy spices.',
+            'Garnish with extra green chillies and serve with warm bread or roti.'
+          ],
+          tip: 'Do not overcook the eggs; keep them soft and juicy for the best rich texture.'
+        },
+        {
+          id: 'desi_b_4',
+          title: 'Meethi French Toast (Desi Sweet Bread)',
+          cuisine: 'Desi',
+          mealType: 'Breakfast',
+          prepTime: '5m',
+          cookTime: '8m',
+          required: ['bread', 'eggs', 'milk', 'sugar', 'butter'],
+          description: 'Sweet, cardamom-scented golden bread toasts soaked in a rich egg-milk custard.',
+          instructions: [
+            'Whisk eggs with whole milk and sugar until sugar dissolves completely.',
+            'Dip bread slices into the egg custard for 5-8 seconds per side to soak thoroughly.',
+            'Melt butter in a skillet over medium-low heat.',
+            'Fry bread slices until golden brown and caramelised on each side.',
+            'Serve warm for a quick and comforting morning breakfast.'
+          ],
+          tip: 'Cook on medium-low heat so the sugar caramelises gently without burning the butter.'
+        },
+        {
+          id: 'desi_b_5',
+          title: 'Desi Khagina (Spiced Morning Scramble)',
+          cuisine: 'Desi',
+          mealType: 'Breakfast',
+          prepTime: '8m',
+          cookTime: '10m',
+          required: ['eggs', 'tomatoes', 'onions', 'green_chillies', 'butter', 'fresh_coriander'],
+          description: 'A breakfast favorite with eggs softly curdled with sautéed aromatics, butter, and fresh coriander.',
+          instructions: [
+            'Melt butter with a drop of oil in a wide frying pan.',
+            'Sauté sliced onions until translucent, then add tomatoes and green chillies.',
+            'Whisk eggs with salt and red chilli powder in a cup.',
+            'Pour into the bubbling tomatoes and stir slowly with a wooden spatula to form soft, velvety curds.',
+            'Finish with a generous handful of fresh coriander.'
+          ],
+          tip: 'Add a splash of milk to the eggs before whisking for an extra fluffy texture.'
+        },
+        {
+          id: 'desi_b_6',
+          title: 'Aloo Bhujia with Fresh Roti',
+          cuisine: 'Desi',
+          mealType: 'Breakfast',
+          prepTime: '10m',
+          cookTime: '15m',
+          required: ['potatoes', 'tomatoes', 'cooking_oil', 'green_chillies', 'atta'],
+          description: 'Thinly sliced potatoes cooked with cumin and tomatoes until tender, accompanied by fresh whole wheat rotis.',
+          instructions: [
+            'Cut peeled potatoes into thin coin slices.',
+            'Heat oil in a pan, add cumin seeds until they splutter, then toss in the sliced potatoes.',
+            'Add diced tomatoes, green chillies, turmeric, and salt.',
+            'Cover and cook on low steam (dam) for 10-12 minutes until potatoes are fork-tender.',
+            'Roll and puff soft rotis on the tawa to serve alongside.'
+          ],
+          tip: 'Slice potatoes evenly so they cook simultaneously without some pieces getting mushy.'
+        },
+        {
+          id: 'desi_b_7',
+          title: 'Besan Ka Cheela (Savory Gram Pancakes)',
+          cuisine: 'Desi',
+          mealType: 'Breakfast',
+          prepTime: '10m',
+          cookTime: '10m',
+          required: ['besan', 'onions', 'tomatoes', 'green_chillies', 'cooking_oil'],
+          description: 'Nutritious, protein-packed savory pancakes made from spiced gram flour batter and crunchy vegetables.',
+          instructions: [
+            'In a bowl, mix besan with water to form a smooth, pourable pancake batter.',
+            'Whisk in finely chopped onions, tomatoes, green chillies, salt, and cumin.',
+            'Lightly grease a non-stick tawa with oil over medium heat.',
+            'Pour a ladle of batter and spread gently into a circle.',
+            'Flip when bubbles appear on top, drizzling a few drops of oil around the edges until crisp.'
+          ],
+          tip: 'Ensure the batter has no lumps; a wire whisk makes it smooth in under 60 seconds.'
+        },
+        {
+          id: 'desi_b_8',
+          title: 'Halwa Puri Chana (Sunday Special)',
+          cuisine: 'Desi',
+          mealType: 'Breakfast',
+          prepTime: '15m',
+          cookTime: '20m',
+          required: ['maida', 'chickpeas', 'onions', 'tomatoes', 'cooking_oil'],
+          description: 'Traditional weekend bazaar breakfast of spiced chickpea salan and hot puffed puris.',
+          instructions: [
+            'Knead maida with water, a pinch of salt, and 1 tsp oil into a firm dough; rest 10 minutes.',
+            'In a pot, sauté onions and tomatoes in oil, add boiled chickpeas, cumin, and salt, then simmer for 10 minutes into a flavorful gravy.',
+            'Roll small balls of dough into thin rounds.',
+            'Deep fry in hot oil until they puff up into golden, balloon-like puris.',
+            'Serve immediately with the warm chickpea curry.'
+          ],
+          tip: 'The oil must be smoking hot before dropping the puri in; gently press it with the skimmer to make it puff instantly.'
+        },
+
+        // ================= DESI LUNCH =================
+        {
+          id: 'desi_l_1',
+          title: 'Tarka Daal Chawal (Moong-Masoor & Basmati)',
+          cuisine: 'Desi',
+          mealType: 'Lunch',
+          prepTime: '10m',
+          cookTime: '25m',
+          required: ['moong_masoor_daal', 'basmati_rice', 'garlic', 'onions', 'cooking_oil'],
+          description: 'The ultimate comforting Pakistani lunch: creamy yellow-orange lentils with aromatic garlic-cumin tarka over basmati rice.',
+          instructions: [
+            'Wash lentils and boil in water with salt, turmeric, and a slit green chilli until completely soft and creamy.',
+            'In a separate pot, cook washed basmati rice until fluffy.',
+            'Prepare the tarka: Heat oil or ghee in a small pan, fry sliced garlic and onions until deep golden brown and fragrant.',
+            'Pour the sizzling tarka over the boiling daal and cover immediately with a lid to trap the smoky aroma.',
+            'Ladle hot daal over steaming basmati rice.'
+          ],
+          tip: 'Cover the pot immediately for 2 minutes after pouring the tarka so the garlic aroma infuses right through the lentils.'
+        },
+        {
+          id: 'desi_l_2',
+          title: 'Aloo Gobi Salan with Hot Roti',
+          cuisine: 'Desi',
+          mealType: 'Lunch',
+          prepTime: '15m',
+          cookTime: '20m',
+          required: ['potatoes', 'cauliflower', 'onions', 'tomatoes', 'garlic', 'ginger', 'cooking_oil', 'atta'],
+          description: 'Tender cauliflower florets and potato cubes braised in a fragrant ginger, garlic, and tomato curry.',
+          instructions: [
+            'Chop cauliflower florets and cube potatoes evenly.',
+            'Sauté sliced onions in oil until golden, then stir in ginger-garlic paste and diced tomatoes.',
+            'Cook the masala until oil separates from the edges.',
+            'Add potatoes and cauliflower, stir well to coat, cover and simmer on low heat for 15 minutes.',
+            'Serve with freshly puffed whole wheat rotis.'
+          ],
+          tip: 'Don\'t add excess water; cauliflower releases its own moisture during the covered steam cooking.'
+        },
+        {
+          id: 'desi_l_3',
+          title: 'Pakistani Chicken Yakhni Pulao',
+          cuisine: 'Desi',
+          mealType: 'Lunch',
+          prepTime: '15m',
+          cookTime: '30m',
+          required: ['chicken', 'basmati_rice', 'onions', 'ginger', 'garlic', 'cooking_oil'],
+          description: 'Aromatic basmati rice cooked in rich spiced chicken broth with caramelized onions and whole spices.',
+          instructions: [
+            'Boil chicken with garlic, ginger, salt, and water to create a rich aromatic yakhni (broth); strain and reserve broth.',
+            'In a heavy pot, brown sliced onions in oil until rich caramel color.',
+            'Add the cooked chicken pieces and sauté for 4-5 minutes.',
+            'Pour in the reserved chicken broth and bring to a rolling boil.',
+            'Add soaked basmati rice, cook until water evaporates, then seal and simmer on low heat (dam) for 12 minutes.'
+          ],
+          tip: 'Getting deep dark golden onions at the start is the secret to a gorgeous brown hue and rich pulao flavor.'
+        },
+        {
+          id: 'desi_l_4',
+          title: 'Zeera Rice with Chilled Dahi Raita',
+          cuisine: 'Desi',
+          mealType: 'Lunch',
+          prepTime: '5m',
+          cookTime: '18m',
+          required: ['basmati_rice', 'yogurt', 'onions', 'cooking_oil'],
+          description: 'A light, cooling lunch of fragrant cumin-tempered rice served with seasoned onion-cucumber yogurt raita.',
+          instructions: [
+            'Heat 2 tbsp oil in a pot, add whole cumin seeds and allow them to crackle and release aroma.',
+            'Add washed basmati rice, sauté for 1 minute, then add water and salt.',
+            'Cover and cook until water is absorbed and grains are long and separate.',
+            'Whisk chilled yogurt with a splash of water, salt, roasted cumin powder, and finely diced onions.',
+            'Serve the cooling raita over warm cumin rice.'
+          ],
+          tip: 'Soak basmati rice for 20 minutes before cooking for maximum grain elongation.'
+        },
+        {
+          id: 'desi_l_5',
+          title: 'Bhindi Masala (Crisp Spiced Okra)',
+          cuisine: 'Desi',
+          mealType: 'Lunch',
+          prepTime: '15m',
+          cookTime: '18m',
+          required: ['okra', 'onions', 'tomatoes', 'green_chillies', 'cooking_oil', 'atta'],
+          description: 'Tender okra sautéed with generous sliced onions and tangy tomatoes, cooked until non-slimy and crisp.',
+          instructions: [
+            'Wash and dry okra thoroughly with a kitchen towel, then cut into bite-sized rounds.',
+            'Shallow fry okra in oil for 6-8 minutes until crisp and no slime remains; remove from pan.',
+            'In the same pan, fry sliced onions until soft, then stir in chopped tomatoes, green chillies, and salt.',
+            'Combine the fried okra with the onion-tomato masala and simmer on low heat for 5 minutes.',
+            'Serve with soft warm rotis.'
+          ],
+          tip: 'Crucial step: make sure okra is completely bone-dry before cutting to prevent any stickiness.'
+        },
+        {
+          id: 'desi_l_6',
+          title: 'Kadhi Pakora with Steamed Rice',
+          cuisine: 'Desi',
+          mealType: 'Lunch',
+          prepTime: '20m',
+          cookTime: '35m',
+          required: ['yogurt', 'besan', 'onions', 'cooking_oil', 'basmati_rice'],
+          description: 'Golden spiced gram flour fritters (pakoras) simmered in a silky, tangy turmeric yogurt curry.',
+          instructions: [
+            'Whisk sour yogurt with besan, turmeric, salt, and water until completely smooth without lumps.',
+            'Simmer the yogurt gravy on low heat for 25-30 minutes, stirring occasionally until thick.',
+            'Mix besan, sliced onions, and chillies with a little water; drop spoonfuls into hot oil to fry crisp pakoras.',
+            'Drop the hot pakoras into the simmering kadhi.',
+            'Finish with a red chilli and cumin tarka and serve over warm steamed basmati rice.'
+          ],
+          tip: 'Use slightly sour, room-temperature yogurt for the most authentic kadhi tang.'
+        },
+        {
+          id: 'desi_l_7',
+          title: 'Aloo Matar Salan with Rice / Roti',
+          cuisine: 'Desi',
+          mealType: 'Lunch',
+          prepTime: '10m',
+          cookTime: '20m',
+          required: ['potatoes', 'peas', 'onions', 'tomatoes', 'garlic', 'cooking_oil', 'basmati_rice'],
+          description: 'A comforting homestyle curry of tender potatoes and sweet green peas simmered in a spiced onion gravy.',
+          instructions: [
+            'Sauté sliced onions in oil until golden, then add minced garlic and chopped tomatoes.',
+            'Cook the masala until soft and oil separates.',
+            'Add cubed potatoes and green peas with 1.5 cups of warm water.',
+            'Cover and cook on medium-low flame until potatoes are tender and gravy is flavorful.',
+            'Ladle over steamed basmati rice.'
+          ],
+          tip: 'Fresh peas cook fast; if using frozen, add them 5 minutes after the potatoes.'
+        },
+        {
+          id: 'desi_l_8',
+          title: 'Anday Ka Salan (Pakistani Egg Curry)',
+          cuisine: 'Desi',
+          mealType: 'Lunch',
+          prepTime: '15m',
+          cookTime: '20m',
+          required: ['eggs', 'potatoes', 'onions', 'tomatoes', 'garlic', 'ginger', 'cooking_oil'],
+          description: 'Hard-boiled eggs and tender potato halves in a silky, aromatic cumin-scented tomato gravy.',
+          instructions: [
+            'Boil eggs for 10 minutes, peel and prick lightly with a fork; fry in 1 tsp oil until skin is blistered golden.',
+            'In a pot, brown onions, then add ginger-garlic paste, pureed tomatoes, and salt.',
+            'Cook until oil separates, then add halved potatoes and water.',
+            'Simmer until potatoes are soft, then gently add the golden eggs and cook for 3 more minutes.',
+            'Garnish with fresh green chillies and serve.'
+          ],
+          tip: 'Pricking the boiled eggs with a toothpick stops them from popping when fried in oil.'
+        },
+
+        // ================= DESI DINNER =================
+        {
+          id: 'desi_d_1',
+          title: 'Pakistani Chicken Karahi',
+          cuisine: 'Desi',
+          mealType: 'Dinner',
+          prepTime: '10m',
+          cookTime: '25m',
+          required: ['chicken', 'tomatoes', 'ginger', 'garlic', 'green_chillies', 'cooking_oil'],
+          description: 'The national pride of Pakistan: bone-in chicken cooked in a wok with fresh tomatoes, ginger matchsticks, and green chillies without onions.',
+          instructions: [
+            'Heat oil in a heavy karahi or wok, fry chicken on high heat with ginger and garlic paste until white.',
+            'Place halved ripe tomatoes skin-side up over the chicken, cover and cook for 8 minutes on medium heat.',
+            'Remove tomato skins with tongs and mash the soft tomato flesh into the chicken.',
+            'High flame bhunai: fry vigorously while stirring until tomato gravy clings thick to the chicken and oil shines on the surface.',
+            'Garnish with fresh ginger matchsticks and sliced green chillies.'
+          ],
+          tip: 'Authentic Shinwari/Lahori karahi uses zero onions; all the sweetness and luscious gravy comes from ripe tomatoes!'
+        },
+        {
+          id: 'desi_d_2',
+          title: 'Homestyle Chicken Biryani',
+          cuisine: 'Desi',
+          mealType: 'Dinner',
+          prepTime: '20m',
+          cookTime: '35m',
+          required: ['chicken', 'basmati_rice', 'yogurt', 'onions', 'tomatoes', 'ginger', 'garlic', 'cooking_oil'],
+          description: 'Layers of fragrant basmati rice and richly spiced chicken masala infused with saffron steam.',
+          instructions: [
+            'Parboil soaked basmati rice with salt and whole spices until 70% done; drain.',
+            'In a wide pot, brown sliced onions in oil, then sauté chicken with ginger-garlic, tomatoes, and yogurt until chicken is tender and oil surfaces.',
+            'Layer the drained rice over the chicken masala.',
+            'Drizzle with a spoonful of melted ghee or milk tinted with turmeric/saffron.',
+            'Cover tightly with foil and lid, simmer on dum (lowest heat) for 15 minutes.'
+          ],
+          tip: 'Never stir rice right after opening the dum lid; let it rest uncovered for 3 minutes so grains don\'t break.'
+        },
+        {
+          id: 'desi_d_3',
+          title: 'Aloo Keema (Spiced Minced Meat with Potatoes)',
+          cuisine: 'Desi',
+          mealType: 'Dinner',
+          prepTime: '15m',
+          cookTime: '25m',
+          required: ['keema', 'potatoes', 'onions', 'tomatoes', 'ginger', 'garlic', 'cooking_oil'],
+          description: 'A comforting weeknight staple of minced meat braised with diced potatoes, aromatics, and whole spices.',
+          instructions: [
+            'Sauté sliced onions in oil until light golden brown.',
+            'Add minced meat (keema) with ginger-garlic paste and stir-fry on high heat until meat changes color and releases juices.',
+            'Stir in diced tomatoes, turmeric, salt, and cumin; cook until tomatoes dissolve.',
+            'Add cubed potatoes and 1/2 cup water, cover and simmer on low heat until potatoes are tender.',
+            'Finish with a quick high-heat bhunai until oil separates cleanly.'
+          ],
+          tip: 'Do the bhunai on high flame until all the raw moisture dries out; this eliminates any gaminess in the keema.'
+        },
+        {
+          id: 'desi_d_4',
+          title: 'Shahi Chicken Korma',
+          cuisine: 'Desi',
+          mealType: 'Dinner',
+          prepTime: '15m',
+          cookTime: '30m',
+          required: ['chicken', 'yogurt', 'onions', 'ginger', 'garlic', 'cooking_oil'],
+          description: 'Velvety royal curry made from crushed fried onions and whisked yogurt, fragrant with cardamom and cloves.',
+          instructions: [
+            'Thinly slice onions and deep fry until crisp golden brown; drain and crush coarsely with fingers or a rolling pin.',
+            'In the same pot, fry chicken pieces with ginger-garlic paste for 5 minutes.',
+            'Whisk yogurt with salt and red chilli powder; pour into the chicken over low heat so it does not split.',
+            'Stir in the crushed fried onions and 1 cup of water.',
+            'Cover and simmer on low heat for 15 minutes until gravy turns grainy (danedar) and aromatic.'
+          ],
+          tip: 'Crush the fried onions by hand rather than blending them into a paste to get that classic danedar royal korma texture.'
+        },
+        {
+          id: 'desi_d_5',
+          title: 'Palak Chicken (Spinach Chicken Curry)',
+          cuisine: 'Desi',
+          mealType: 'Dinner',
+          prepTime: '15m',
+          cookTime: '25m',
+          required: ['chicken', 'spinach', 'onions', 'tomatoes', 'garlic', 'cooking_oil'],
+          description: 'Juicy chicken pieces simmered in a nourishing, garlic-infused spinach puree with homestyle spices.',
+          instructions: [
+            'Blanch spinach in boiling water for 2 minutes, shock in cold water, and blend into a puree.',
+            'Sauté onions and garlic in oil, add chicken pieces and fry until sealed.',
+            'Add chopped tomatoes and salt; cook until tomatoes soften into a gravy.',
+            'Pour in the pureed spinach, mix thoroughly, cover and simmer for 15 minutes until chicken is cooked through.',
+            'Serve with hot tawa rotis or parathas.'
+          ],
+          tip: 'Shocking the blanched spinach in cold water preserves its bright appetizing green color.'
+        },
+        {
+          id: 'desi_d_6',
+          title: 'Peshawari Chapli Kabab with Naan',
+          cuisine: 'Desi',
+          mealType: 'Dinner',
+          prepTime: '20m',
+          cookTime: '15m',
+          required: ['keema', 'onions', 'tomatoes', 'green_chillies', 'atta', 'cooking_oil'],
+          description: 'Mouthwatering flattened minced patties pan-fried crisp with crushed coriander, pomegranate seeds, and fresh tomato slices.',
+          instructions: [
+            'In a large bowl, combine minced meat with finely chopped onions, diced tomatoes, green chillies, crushed coriander seeds, salt, and 2 tbsp atta for binding.',
+            'Knead the mixture with your hands for 5 minutes to release the meat proteins.',
+            'Shape into large thin flat patties, pressing a slice of tomato in the center.',
+            'Shallow fry on a flat tawa in hot oil until edges are dark and crispy while center stays juicy.',
+            'Serve sizzling hot with fresh bread or naan.'
+          ],
+          tip: 'Knead the mince vigorously like bread dough so the patties hold their shape without crumbling on the pan.'
+        },
+        {
+          id: 'desi_d_7',
+          title: 'Creamy Chicken Handi',
+          cuisine: 'Desi',
+          mealType: 'Dinner',
+          prepTime: '15m',
+          cookTime: '20m',
+          required: ['chicken', 'yogurt', 'milk', 'tomatoes', 'ginger', 'garlic', 'butter'],
+          description: 'Mild, silky boneless chicken cubes simmered in a buttery tomato-yogurt gravy with cream and fenugreek aroma.',
+          instructions: [
+            'Melt butter in a pot and sauté chicken cubes with ginger and garlic paste until white.',
+            'Stir in blended tomato puree, salt, and cumin powder; simmer for 8 minutes.',
+            'Lower the flame, whisk yogurt with a splash of milk and pour in smoothly while stirring.',
+            'Simmer for another 6-8 minutes until the gravy is thick, silky, and coats the chicken.',
+            'Finish with a pat of butter on top and serve with warm rotis.'
+          ],
+          tip: 'Keep the heat on low when adding milk and yogurt to keep the handi velvety and prevent curdling.'
+        },
+
+        // ================= ITALIAN BREAKFAST =================
+        {
+          id: 'ital_b_1',
+          title: 'Italian Tomato & Basil Frittata',
+          cuisine: 'Italian',
+          mealType: 'Breakfast',
+          prepTime: '8m',
+          cookTime: '12m',
+          required: ['eggs', 'tomatoes', 'cheese', 'olive_oil', 'fresh_basil'],
+          description: 'Classic rustic Italian open-faced baked omelette loaded with sweet cherry tomatoes, aromatic basil, and melted cheese.',
+          instructions: [
+            'Whisk eggs in a bowl with salt, black pepper, and half the grated cheese.',
+            'Heat olive oil in an oven-safe skillet over medium-low heat.',
+            'Add diced tomatoes and sauté gently for 2 minutes until sweet and soft.',
+            'Pour in the egg mixture, scatter fresh basil leaves and remaining cheese on top.',
+            'Cover skillet with a lid and cook on low heat for 8-10 minutes until set and puffed.',
+            'Slice into wedges and serve warm.'
+          ],
+          tip: 'Cook on the lowest possible stovetop heat with a tight lid to let the frittata steam and rise evenly without scorching the bottom.'
+        },
+        {
+          id: 'ital_b_2',
+          title: 'Pane e Pomodoro (Rustic Garlic Bruschetta)',
+          cuisine: 'Italian',
+          mealType: 'Breakfast',
+          prepTime: '5m',
+          cookTime: '5m',
+          required: ['bread', 'tomatoes', 'garlic', 'olive_oil', 'fresh_basil'],
+          description: 'Crunchy toasted bread rubbed with raw garlic, drizzled with extra virgin olive oil, and topped with ripe salted tomatoes.',
+          instructions: [
+            'Toast slices of bread in a dry pan or toaster until golden and crunchy.',
+            'Cut a garlic clove in half and gently rub the cut side across the warm rough surface of the toasted bread.',
+            'Dice ripe tomatoes and toss in a small bowl with olive oil, salt, and torn fresh basil.',
+            'Spoon the juicy tomatoes generously over the garlic toast.',
+            'Drizzle with extra virgin olive oil and enjoy immediately.'
+          ],
+          tip: 'Rub the garlic while the bread is still steaming hot; the heat melts the garlic oil right into the crust.'
+        },
+        {
+          id: 'ital_b_3',
+          title: 'Uova in Purgatorio (Eggs in Purgatory)',
+          cuisine: 'Italian',
+          mealType: 'Breakfast',
+          prepTime: '5m',
+          cookTime: '12m',
+          required: ['eggs', 'tomato_puree', 'garlic', 'olive_oil', 'bread'],
+          description: 'Whole eggs gently poached directly inside a bubbling, garlicky tomato sauce, scooped up with crusty bread.',
+          instructions: [
+            'Heat olive oil in a wide skillet, sauté thinly sliced garlic until aromatic (do not brown).',
+            'Pour in tomato puree with salt, black pepper, and a pinch of dried oregano; simmer for 5 minutes.',
+            'Use a spoon to create small wells in the bubbling sauce and crack eggs gently into each well.',
+            'Cover the pan and cook on low heat for 4-5 minutes until egg whites are set and yolks remain runny.',
+            'Serve straight from the skillet with slices of warm bread for dipping.'
+          ],
+          tip: 'Keep the yolks runny so they mix with the acidic tomato sauce to create a rich dipping sauce.'
+        },
+        {
+          id: 'ital_b_4',
+          title: 'Tuscan Herbed Scrambled Eggs with Cheese',
+          cuisine: 'Italian',
+          mealType: 'Breakfast',
+          prepTime: '5m',
+          cookTime: '6m',
+          required: ['eggs', 'milk', 'butter', 'cheese', 'bread'],
+          description: 'Silky, slow-cooked scrambled eggs finished with butter, milk, and melted cheese on warm toast.',
+          instructions: [
+            'Whisk eggs thoroughly with milk, salt, and black pepper.',
+            'Melt butter in a small non-stick pan over very low heat.',
+            'Pour in the egg mixture and cook gently, stirring constantly with a spatula in figure-eight motions.',
+            'Just before eggs finish setting, fold in grated cheese and remove from heat.',
+            'Spoon onto warm toasted bread and serve immediately.'
+          ],
+          tip: 'Take the pan off the heat while the eggs still look slightly wet; residual heat finishes the cooking perfectly.'
+        },
+
+        // ================= ITALIAN LUNCH =================
+        {
+          id: 'ital_l_1',
+          title: 'Spaghetti Aglio e Olio',
+          cuisine: 'Italian',
+          mealType: 'Lunch',
+          prepTime: '5m',
+          cookTime: '12m',
+          required: ['pasta', 'garlic', 'olive_oil'],
+          description: 'The minimalist masterclass of Naples: pasta tossed in golden garlic oil, crushed chilli, and starchy pasta water emulsion.',
+          instructions: [
+            'Boil spaghetti or pasta in generously salted water until al dente (firm to the bite). Reserve 1/2 cup pasta cooking water!',
+            'While pasta cooks, heat olive oil in a wide pan over low heat with thinly sliced garlic.',
+            'Cook slowly until garlic turns pale golden (never dark, or it turns bitter).',
+            'Transfer drained pasta directly into the garlic oil pan.',
+            'Pour in 3-4 tablespoons of the starchy pasta water and toss vigorously for 1 minute until a glossy emulsified sauce coats every strand.',
+            'Serve immediately.'
+          ],
+          tip: 'The starchy pasta cooking water is the secret ingredient; it turns plain olive oil into a silky clinging sauce.'
+        },
+        {
+          id: 'ital_l_2',
+          title: 'Classic Penne all\'Arrabbiata',
+          cuisine: 'Italian',
+          mealType: 'Lunch',
+          prepTime: '5m',
+          cookTime: '15m',
+          required: ['pasta', 'tomato_puree', 'garlic', 'olive_oil', 'green_chillies'],
+          description: 'Rome\'s fiery pasta dish featuring penne coated in a spicy garlic and tomato sauce with chilli kick.',
+          instructions: [
+            'Boil penne in salted water until al dente; reserve 1/3 cup pasta water and drain.',
+            'Heat olive oil in a skillet, sauté sliced garlic and chopped green chillies / red flakes for 1 minute.',
+            'Pour in tomato puree and salt; simmer on medium heat for 8 minutes until sauce thickens and sweetens.',
+            'Toss the hot penne into the spicy sauce with a splash of reserved pasta water.',
+            'Toss on high heat for 1 minute so the pasta absorbs the spicy sauce inside its tubes.'
+          ],
+          tip: 'Penne ridges (rigate) trap the fiery sauce; ensure you coat the pasta while it is steaming hot.'
+        },
+        {
+          id: 'ital_l_3',
+          title: 'Pasta al Pomodoro e Basilico',
+          cuisine: 'Italian',
+          mealType: 'Lunch',
+          prepTime: '5m',
+          cookTime: '15m',
+          required: ['pasta', 'tomatoes', 'garlic', 'olive_oil', 'fresh_basil', 'cheese'],
+          description: 'Simple, sweet, sun-drenched Italian tomato sauce tossed with pasta, fresh basil, and grated cheese.',
+          instructions: [
+            'Cook pasta in boiling salted water until al dente.',
+            'In a saucepan, warm olive oil with smashed garlic cloves, then add diced ripe tomatoes and a pinch of salt.',
+            'Simmer for 10-12 minutes, mashing tomatoes with a wooden spoon into a rustic sauce.',
+            'Tear in fresh basil leaves.',
+            'Toss pasta into the tomato sauce, top with grated cheese and an extra drizzle of olive oil.'
+          ],
+          tip: 'Add fresh basil at the very end with heat turned off so its delicate aroma doesn\'t boil away.'
+        },
+        {
+          id: 'ital_l_4',
+          title: 'Caprese Toasted Panini',
+          cuisine: 'Italian',
+          mealType: 'Lunch',
+          prepTime: '5m',
+          cookTime: '8m',
+          required: ['bread', 'tomatoes', 'cheese', 'olive_oil', 'fresh_basil'],
+          description: 'Crispy pressed Italian sandwich with gooey melted mozzarella, sliced ripe tomatoes, fragrant basil, and olive oil.',
+          instructions: [
+            'Brush outer sides of bread slices with olive oil.',
+            'Layer sliced cheese, ripe tomato slices, fresh basil leaves, and a sprinkle of salt inside.',
+            'Place sandwich in a skillet over medium heat.',
+            'Press down firmly with another heavy pan or spatula to toast evenly.',
+            'Flip when bottom is golden and crunchy; toast until cheese is completely melted and stringy.'
+          ],
+          tip: 'Lightly salt the tomato slices before assembling to bring out their natural sweetness.'
+        },
+        {
+          id: 'ital_l_5',
+          title: 'Hearty Italian Minestrone Soup',
+          cuisine: 'Italian',
+          mealType: 'Lunch',
+          prepTime: '15m',
+          cookTime: '25m',
+          required: ['pasta', 'chickpeas', 'potatoes', 'tomatoes', 'spinach', 'garlic', 'olive_oil'],
+          description: 'Nourishing Tuscan vegetable and bean soup simmered with small pasta, potatoes, and spinach in a tomato broth.',
+          instructions: [
+            'Heat olive oil in a soup pot, sauté garlic and cubed potatoes for 3 minutes.',
+            'Add diced tomatoes, boiled chickpeas, and 3 cups of water or broth; bring to a simmer.',
+            'Cook for 12 minutes until potatoes are almost tender.',
+            'Add small pasta shapes and chopped spinach; simmer 8-10 more minutes until pasta is cooked.',
+            'Ladle hot into bowls with a generous drizzle of olive oil.'
+          ],
+          tip: 'Minestrone tastes even better the next day as the vegetables and broth meld together.'
+        },
+        {
+          id: 'ital_l_6',
+          title: 'Creamy Garlic & Sweet Pea Pasta',
+          cuisine: 'Italian',
+          mealType: 'Lunch',
+          prepTime: '5m',
+          cookTime: '15m',
+          required: ['pasta', 'peas', 'garlic', 'butter', 'milk', 'cheese'],
+          description: 'A quick 15-minute kid-friendly lunch of pasta tossed in sweet green peas, garlic butter, milk, and melted cheese.',
+          instructions: [
+            'Boil pasta in salted water until al dente.',
+            'In a skillet, melt butter and cook minced garlic with green peas for 2-3 minutes.',
+            'Pour in milk and simmer gently for 2 minutes.',
+            'Stir in cooked pasta and grated cheese until a creamy, glossy sauce forms around the peas.',
+            'Season with black pepper and serve immediately.'
+          ],
+          tip: 'A squeeze of fresh lemon right at the end cuts through the creamy sauce and elevates the sweet peas.'
+        },
+
+        // ================= ITALIAN DINNER =================
+        {
+          id: 'ital_d_1',
+          title: 'Classic Fettuccine Alfredo',
+          cuisine: 'Italian',
+          mealType: 'Dinner',
+          prepTime: '5m',
+          cookTime: '12m',
+          required: ['pasta', 'butter', 'milk', 'garlic', 'cheese'],
+          description: 'Silky, luxurious Roman pasta coated in an emulsion of melted butter, milk/cream, garlic, and savory cheese.',
+          instructions: [
+            'Boil pasta in salted water until al dente; reserve 1/2 cup starchy pasta water.',
+            'In a wide pan, melt butter over medium-low heat with minced garlic.',
+            'Whisk in milk and simmer gently for 2 minutes.',
+            'Turn heat to low, add hot pasta and generous grated cheese.',
+            'Toss and stir continuously, adding a splash of pasta water as needed until a velvety rich sauce forms.',
+            'Serve with cracked black pepper.'
+          ],
+          tip: 'Do not boil cheese on high heat; gentle tossing off the flame prevents separation and gives restaurant creaminess.'
+        },
+        {
+          id: 'ital_d_2',
+          title: 'Pollo alla Parmigiana (Italian Chicken Parmesan)',
+          cuisine: 'Italian',
+          mealType: 'Dinner',
+          prepTime: '15m',
+          cookTime: '20m',
+          required: ['chicken', 'tomato_puree', 'garlic', 'cheese', 'olive_oil'],
+          description: 'Golden pan-seared chicken breast smothered in garlic tomato sauce, topped with bubbling melted cheese.',
+          instructions: [
+            'Season chicken cutlets with salt and black pepper.',
+            'Heat olive oil in a skillet, sear chicken on medium-high heat for 4-5 minutes per side until golden.',
+            'Remove chicken, sauté minced garlic in the same pan, then pour in tomato puree and simmer for 5 minutes.',
+            'Place chicken cutlets back into the tomato sauce.',
+            'Top each piece with a thick layer of cheese, cover skillet with lid for 3-4 minutes until cheese melts completely and bubbles.',
+            'Serve warm.'
+          ],
+          tip: 'Use a meat mallet or rolling pin to flatten chicken cutlets to an even thickness so they cook quickly and remain juicy.'
+        },
+        {
+          id: 'ital_d_3',
+          title: 'Spaghetti Bolognese (Italian Minced Meat Ragu)',
+          cuisine: 'Italian',
+          mealType: 'Dinner',
+          prepTime: '10m',
+          cookTime: '30m',
+          required: ['keema', 'pasta', 'tomato_puree', 'onions', 'garlic', 'olive_oil'],
+          description: 'Rich, savory meat ragu slow-simmered with onions, garlic, and tomato passata, spooned over steaming spaghetti.',
+          instructions: [
+            'Heat olive oil in a pot, cook finely chopped onions and garlic until translucent.',
+            'Add minced meat (keema) and brown thoroughly while breaking up chunks with a spoon.',
+            'Stir in tomato puree, salt, and black pepper; bring to a boil.',
+            'Cover and simmer on low heat for 20 minutes to develop deep meat-tomato flavors.',
+            'Cook spaghetti in salted water until al dente, drain, and toss with the rich bolognese ragu.'
+          ],
+          tip: 'Brown the minced meat until it sizzles and caramelizes before adding tomato puree to maximize umami flavor.'
+        },
+        {
+          id: 'ital_d_4',
+          title: 'Creamy Tuscan Garlic Chicken',
+          cuisine: 'Italian',
+          mealType: 'Dinner',
+          prepTime: '10m',
+          cookTime: '20m',
+          required: ['chicken', 'garlic', 'spinach', 'tomatoes', 'milk', 'olive_oil', 'butter'],
+          description: 'Tender chicken breasts in a decadent garlic-butter cream sauce with wilted spinach and sweet tomatoes.',
+          instructions: [
+            'Pan-sear chicken breasts in olive oil and butter until cooked through and golden; set aside on a plate.',
+            'In the same pan juices, sauté minced garlic and diced tomatoes for 2 minutes.',
+            'Add fresh spinach leaves and cook until wilted.',
+            'Pour in milk, season with salt and black pepper, and bring to a gentle simmer.',
+            'Return chicken to the pan, spoon the creamy sauce over top, and simmer together for 2 minutes.'
+          ],
+          tip: 'Do not wash the pan after cooking chicken; those caramelized bits at the bottom give the sauce its rich flavor.'
+        },
+        {
+          id: 'ital_d_5',
+          title: 'Skillet Margherita Flatbread Pizza',
+          cuisine: 'Italian',
+          mealType: 'Dinner',
+          prepTime: '15m',
+          cookTime: '10m',
+          required: ['atta', 'tomato_puree', 'cheese', 'fresh_basil', 'olive_oil'],
+          description: 'No oven required! Crispy stovetop whole-wheat flatbread topped with seasoned tomato sauce, melted cheese, and fresh basil.',
+          instructions: [
+            'Roll out a portion of atta dough into a thin flat round disc.',
+            'Cook in a hot, dry skillet for 2 minutes on one side until blistered; flip over.',
+            'Quickly spread a thin layer of tomato puree on the cooked side.',
+            'Top with generous cheese and fresh basil leaves.',
+            'Cover skillet tightly with a lid, turn flame to low, and cook for 4-5 minutes until the bottom is crisp and cheese is melted.',
+            'Drizzle with olive oil and slice.'
+          ],
+          tip: 'Keep the tomato puree layer thin so the flatbread crust stays crispy instead of soggy.'
+        },
+        {
+          id: 'ital_d_6',
+          title: 'Italian Lemon Garlic Chicken (Pollo al Limone)',
+          cuisine: 'Italian',
+          mealType: 'Dinner',
+          prepTime: '10m',
+          cookTime: '18m',
+          required: ['chicken', 'lemon', 'garlic', 'butter', 'olive_oil'],
+          description: 'Zesty pan-seared chicken bathed in a bright garlic, fresh lemon juice, and glossy butter pan sauce.',
+          instructions: [
+            'Slice chicken breasts horizontally into thin cutlets and season with salt and pepper.',
+            'Sear in hot olive oil for 3-4 minutes per side until golden; remove to a plate.',
+            'In the same pan, sauté minced garlic for 30 seconds.',
+            'Squeeze in fresh lemon juice and add 2 tbsp water; simmer for 1 minute while scraping pan drippings.',
+            'Whisk in cold butter cubes to form a glossy sauce, return chicken, and baste with the lemon sauce.'
+          ],
+          tip: 'Whisk the butter in off the heat; cold butter emulsifies with the lemon juice into a velvety restaurant-quality sauce.'
+        }
+      ];
+
+      // -------------------------------------------------------------
+      // 3. APPLICATION STATE
+      // -------------------------------------------------------------
+      const STATE = {
+        selectedIngredients: new Set(),
+        currentTab: 'kitchen',
+        planViewMode: 'day', // 'day' or 'week'
+        activeDayIndex: 0,   // 0 = Monday, 6 = Sunday
+        cuisinePreference: 'balanced', // 'balanced', 'mostly-desi', 'mostly-italian'
+        weeklyPlan: [], // Array of 7 days, each having { day: 'Monday', breakfast: recipe, lunch: recipe, dinner: recipe, locked: { b: bool, l: bool, d: bool } }
+        searchQuery: '',
+        customIngredients: []
+      };
+
+      const DAYS_OF_WEEK = [
+        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+      ];
+
+      // LocalStorage Key
+      const STORAGE_KEY = 'dishcovery_app_state_v1';
+
+      // -------------------------------------------------------------
+      // 4. STORAGE & INITIALIZATION
+      // -------------------------------------------------------------
+      function saveToLocalStorage() {
+        try {
+          const serialized = {
+            selectedIngredients: Array.from(STATE.selectedIngredients),
+            customIngredients: STATE.customIngredients,
+            cuisinePreference: STATE.cuisinePreference,
+            weeklyPlan: STATE.weeklyPlan
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(serialized));
+        } catch (e) {
+          console.warn('LocalStorage save failed:', e);
+        }
+      }
+
+      function loadFromLocalStorage() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (Array.isArray(data.selectedIngredients)) {
+              STATE.selectedIngredients = new Set(data.selectedIngredients);
+            }
+            if (Array.isArray(data.customIngredients)) {
+              STATE.customIngredients = data.customIngredients;
+            }
+            if (data.cuisinePreference) {
+              STATE.cuisinePreference = data.cuisinePreference;
+            }
+            if (Array.isArray(data.weeklyPlan) && data.weeklyPlan.length === 7) {
+              STATE.weeklyPlan = data.weeklyPlan;
+            }
+          }
+        } catch (e) {
+          console.warn('LocalStorage load failed:', e);
+        }
+
+        // If no ingredients selected yet, apply Desi Kitchen preset by default for immediate delightful UX
+        if (STATE.selectedIngredients.size === 0) {
+          applyPreset('desi', false);
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 5. INGREDIENT FILTERING & RECIPE MATCHING ENGINE
+      //    Strict constraint: "Recipes must use only available ingredients.
+      //    If we don't have ingredients, don't suggest a recipe."
+      // -------------------------------------------------------------
+      function isRecipeCookable(recipe) {
+        if (!recipe || !Array.isArray(recipe.required)) return false;
+        // Every single required ingredient must be in STATE.selectedIngredients
+        return recipe.required.every(ingId => STATE.selectedIngredients.has(ingId));
+      }
+
+      function getCookableRecipes(filterCuisine = 'all', filterMealType = 'all') {
+        return RECIPES_DB.filter(recipe => {
+          if (!isRecipeCookable(recipe)) return false;
+          if (filterCuisine !== 'all' && recipe.cuisine !== filterCuisine) return false;
+          if (filterMealType !== 'all' && recipe.mealType !== filterMealType) return false;
+          return true;
+        });
+      }
+
+      function getCookableCountsByMeal() {
+        const cookable = RECIPES_DB.filter(isRecipeCookable);
+        return {
+          total: cookable.length,
+          breakfast: cookable.filter(r => r.mealType === 'Breakfast'),
+          lunch: cookable.filter(r => r.mealType === 'Lunch'),
+          dinner: cookable.filter(r => r.mealType === 'Dinner'),
+          desi: cookable.filter(r => r.cuisine === 'Desi'),
+          italian: cookable.filter(r => r.cuisine === 'Italian')
+        };
+      }
+
+      // -------------------------------------------------------------
+      // 6. 7-DAY MEAL PLAN GENERATOR (21 MEALS: 7B + 7L + 7D)
+      // -------------------------------------------------------------
+      function generatePlan(forceRegenerate = false) {
+        const counts = getCookableCountsByMeal();
+
+        // Check if existing plan exists and not forced
+        if (!forceRegenerate && STATE.weeklyPlan && STATE.weeklyPlan.length === 7) {
+          renderWeeklyPlan();
+          return;
+        }
+
+        const breakfasts = counts.breakfast;
+        const lunches = counts.lunch;
+        const dinners = counts.dinner;
+
+        // If no cookable recipes at all
+        if (counts.total === 0) {
+          STATE.weeklyPlan = [];
+          renderWeeklyPlan();
+          return;
+        }
+
+        const newPlan = [];
+
+        // Helper to select a recipe with preference weighting and minimal consecutive repeats
+        function pickRecipe(pool, previousPick, lockedRecipe, pref) {
+          if (lockedRecipe) return lockedRecipe;
+          if (!pool || pool.length === 0) return null;
+
+          let filtered = pool;
+          // Apply cuisine preference filter if possible
+          if (pref === 'mostly-desi') {
+            const desiPool = pool.filter(r => r.cuisine === 'Desi');
+            if (desiPool.length > 0 && Math.random() < 0.8) filtered = desiPool;
+          } else if (pref === 'mostly-italian') {
+            const italPool = pool.filter(r => r.cuisine === 'Italian');
+            if (italPool.length > 0 && Math.random() < 0.8) filtered = italPool;
+          }
+
+          // Try not to repeat same recipe on consecutive day if pool > 1
+          if (filtered.length > 1 && previousPick) {
+            const nonRepeat = filtered.filter(r => r.id !== previousPick.id);
+            if (nonRepeat.length > 0) filtered = nonRepeat;
+          }
+
+          // Random pick from eligible filtered list
+          const index = Math.floor(Math.random() * filtered.length);
+          return filtered[index];
+        }
+
+        let prevB = null, prevL = null, prevD = null;
+
+        for (let i = 0; i < 7; i++) {
+          const dayName = DAYS_OF_WEEK[i];
+          const existingDay = STATE.weeklyPlan[i];
+
+          const lockedB = existingDay?.locked?.b ? existingDay.breakfast : null;
+          const lockedL = existingDay?.locked?.l ? existingDay.lunch : null;
+          const lockedD = existingDay?.locked?.d ? existingDay.dinner : null;
+
+          // Pick breakfast, lunch, dinner
+          const bPick = pickRecipe(breakfasts, prevB, lockedB, STATE.cuisinePreference);
+          const lPick = pickRecipe(lunches, prevL, lockedL, STATE.cuisinePreference);
+          const dPick = pickRecipe(dinners, prevD, lockedD, STATE.cuisinePreference);
+
+          prevB = bPick;
+          prevL = lPick;
+          prevD = dPick;
+
+          newPlan.push({
+            day: dayName,
+            breakfast: bPick,
+            lunch: lPick,
+            dinner: dPick,
+            locked: {
+              b: Boolean(lockedB),
+              l: Boolean(lockedL),
+              d: Boolean(lockedD)
+            }
+          });
+        }
+
+        STATE.weeklyPlan = newPlan;
+        saveToLocalStorage();
+        renderWeeklyPlan();
+        showToast('Generated fresh 7-day meal plan (21 meals)!');
+      }
+
+      function swapSingleMeal(dayIndex, mealSlot) {
+        const dayPlan = STATE.weeklyPlan[dayIndex];
+        if (!dayPlan) return;
+
+        const currentRecipe = dayPlan[mealSlot];
+        const mealType = mealSlot === 'breakfast' ? 'Breakfast' : (mealSlot === 'lunch' ? 'Lunch' : 'Dinner');
+        const pool = RECIPES_DB.filter(r => isRecipeCookable(r) && r.mealType === mealType);
+
+        if (pool.length <= 1) {
+          showToast('No other cookable recipes for this slot. Add more ingredients to swap!');
+          return;
+        }
+
+        // Pick a recipe different from current
+        const alternatives = pool.filter(r => !currentRecipe || r.id !== currentRecipe.id);
+        const nextRecipe = alternatives[Math.floor(Math.random() * alternatives.length)];
+
+        dayPlan[mealSlot] = nextRecipe;
+        saveToLocalStorage();
+        renderWeeklyPlan();
+        showToast(`Swapped to ${nextRecipe.title}!`);
+      }
+
+      function toggleMealLock(dayIndex, slotKey) {
+        const dayPlan = STATE.weeklyPlan[dayIndex];
+        if (!dayPlan) return;
+        dayPlan.locked[slotKey] = !dayPlan.locked[slotKey];
+        saveToLocalStorage();
+        renderWeeklyPlan();
+        const isNowLocked = dayPlan.locked[slotKey];
+        showToast(isNowLocked ? 'Meal locked in plan' : 'Meal unlocked');
+      }
+
+      // -------------------------------------------------------------
+      // 7. RENDERING FUNCTIONS
+      // -------------------------------------------------------------
       
-      <div class="p-5 border-b border-warm-border bg-emerald-50 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg">
-            📲
-          </div>
+      // Update top header status and pills
+      function updateHeaderStats() {
+        const counts = getCookableCountsByMeal();
+        const ingCount = STATE.selectedIngredients.size;
+
+        document.getElementById('header-ingredient-count').textContent = `${ingCount} items ready`;
+        document.getElementById('header-recipe-count').textContent = `${counts.total} cookable meals`;
+        document.getElementById('badge-pantry-count').textContent = ingCount;
+        document.getElementById('badge-eligible-count').textContent = counts.total;
+        document.getElementById('status-cookable-text').textContent = `${counts.total} recipes cookable (${counts.desi.length} Desi, ${counts.italian.length} Italian)`;
+
+        // Mobile bottom bar text
+        document.getElementById('mobile-status-summary').textContent = `${ingCount} ingredients selected`;
+        document.getElementById('mobile-recipes-summary').textContent = `${counts.total} recipes cookable`;
+
+        const planPill = document.getElementById('plan-ready-pill');
+        if (counts.total >= 3) {
+          planPill.classList.remove('hidden');
+        } else {
+          planPill.classList.add('hidden');
+        }
+
+        // Insufficient warning in 7-day tab
+        const warningBox = document.getElementById('insufficient-warning');
+        if (counts.total < 10 && STATE.weeklyPlan.length > 0) {
+          warningBox.classList.remove('hidden');
+          document.getElementById('warning-cookable-count').textContent = counts.total;
+        } else {
+          warningBox.classList.add('hidden');
+        }
+      }
+
+      // Render Kitchen Ingredients Accordions
+      function renderIngredients() {
+        const container = document.getElementById('ingredient-categories-container');
+        container.innerHTML = '';
+
+        const query = STATE.searchQuery.toLowerCase().trim();
+
+        INGREDIENT_CATEGORIES.forEach(cat => {
+          const filteredItems = cat.items.filter(item => {
+            return !query || item.name.toLowerCase().includes(query) || cat.name.toLowerCase().includes(query);
+          });
+
+          if (query && filteredItems.length === 0) return;
+
+          const card = document.createElement('div');
+          card.className = 'bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs';
+
+          // Category Header with select/unselect all for this category
+          const header = document.createElement('div');
+          header.className = 'flex items-center justify-between pb-3 border-b border-slate-100 mb-4';
+          header.innerHTML = `
+            <div class="flex items-center gap-2.5">
+              <span class="text-xl">${cat.icon}</span>
+              <h3 class="font-extrabold text-sm sm:text-base text-slate-800">${cat.name}</h3>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold">${cat.items.length}</span>
+            </div>
+            <button class="cat-toggle-btn text-xs font-bold text-brand-600 hover:text-brand-800 transition-colors" data-cat="${cat.id}">
+              Toggle All
+            </button>
+          `;
+          card.appendChild(header);
+
+          // Grid of Ingredient Checkbox Pills
+          const itemsGrid = document.createElement('div');
+          itemsGrid.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5';
+
+          filteredItems.forEach(item => {
+            const isSelected = STATE.selectedIngredients.has(item.id);
+            const pill = document.createElement('label');
+            pill.className = `flex items-center gap-3 p-3 rounded-2xl border cursor-pointer select-none transition-all ${
+              isSelected 
+                ? 'bg-amber-50/80 border-brand-500 shadow-xs ring-1 ring-brand-500/30' 
+                : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'
+            }`;
+
+            pill.innerHTML = `
+              <input type="checkbox" class="ingredient-checkbox sr-only" data-id="${item.id}" ${isSelected ? 'checked' : ''} />
+              <div class="w-5 h-5 rounded-lg flex items-center justify-center border transition-colors ${
+                isSelected ? 'bg-brand-600 border-brand-600 text-white' : 'border-slate-300 bg-white'
+              }">
+                <span class="material-symbols-outlined text-[16px] ${isSelected ? 'block' : 'hidden'}">check</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs sm:text-sm font-semibold truncate ${isSelected ? 'text-slate-900' : 'text-slate-700'}">${item.name}</div>
+              </div>
+              ${item.popular ? '<span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100/70 px-1.5 py-0.5 rounded-md shrink-0">Staple</span>' : ''}
+            `;
+
+            pill.querySelector('input').addEventListener('change', (e) => {
+              toggleIngredient(item.id, e.target.checked);
+            });
+
+            itemsGrid.appendChild(pill);
+          });
+
+          card.appendChild(itemsGrid);
+
+          // Toggle all listener
+          header.querySelector('.cat-toggle-btn').addEventListener('click', () => {
+            const allSelected = filteredItems.every(i => STATE.selectedIngredients.has(i.id));
+            filteredItems.forEach(i => {
+              if (allSelected) {
+                STATE.selectedIngredients.delete(i.id);
+              } else {
+                STATE.selectedIngredients.add(i.id);
+              }
+            });
+            saveToLocalStorage();
+            renderIngredients();
+            updateHeaderStats();
+            if (STATE.weeklyPlan.length > 0) renderWeeklyPlan();
+          });
+
+          container.appendChild(card);
+        });
+
+        // Custom Ingredients Section if any exist
+        if (STATE.customIngredients.length > 0) {
+          const customCard = document.createElement('div');
+          customCard.className = 'bg-white border border-slate-200/90 rounded-3xl p-5 shadow-xs';
+          customCard.innerHTML = `
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">✨</span>
+                <h3 class="font-extrabold text-sm sm:text-base text-slate-800">Your Custom Items</h3>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2" id="custom-items-pill-container"></div>
+          `;
+          const customContainer = customCard.querySelector('#custom-items-pill-container');
+          STATE.customIngredients.forEach((name, idx) => {
+            const customPill = document.createElement('span');
+            customPill.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 border border-brand-200 text-brand-900 rounded-xl text-xs font-semibold';
+            customPill.innerHTML = `
+              <span>${name}</span>
+              <button class="hover:text-red-600" data-idx="${idx}"><span class="material-symbols-outlined text-[14px]">close</span></button>
+            `;
+            customPill.querySelector('button').addEventListener('click', () => {
+              STATE.customIngredients.splice(idx, 1);
+              STATE.selectedIngredients.delete('custom_' + idx);
+              saveToLocalStorage();
+              renderIngredients();
+              updateHeaderStats();
+            });
+            customContainer.appendChild(customPill);
+          });
+          container.appendChild(customCard);
+        }
+      }
+
+      function toggleIngredient(id, isChecked) {
+        if (isChecked) {
+          STATE.selectedIngredients.add(id);
+        } else {
+          STATE.selectedIngredients.delete(id);
+        }
+        saveToLocalStorage();
+        updateHeaderStats();
+        renderIngredients();
+        if (STATE.weeklyPlan.length > 0) {
+          renderWeeklyPlan();
+        }
+      }
+
+      // Presets
+      function applyPreset(presetType, showFeedback = true) {
+        STATE.selectedIngredients.clear();
+
+        if (presetType === 'desi') {
+          // Standard Desi home staples
+          const staples = [
+            'atta', 'basmati_rice', 'moong_masoor_daal', 'onions', 'garlic', 'ginger',
+            'tomatoes', 'potatoes', 'green_chillies', 'chicken', 'eggs', 'yogurt',
+            'cooking_oil', 'fresh_coriander'
+          ];
+          staples.forEach(id => STATE.selectedIngredients.add(id));
+          if (showFeedback) showToast('Loaded Standard Desi Kitchen preset!');
+        } else if (presetType === 'both') {
+          // Both Desi & Italian staples
+          const allStaples = [
+            'atta', 'basmati_rice', 'pasta', 'moong_masoor_daal', 'chickpeas', 'bread',
+            'onions', 'garlic', 'ginger', 'tomatoes', 'potatoes', 'green_chillies',
+            'spinach', 'peas', 'lemon', 'chicken', 'keema', 'eggs', 'milk', 'yogurt',
+            'cheese', 'butter', 'cooking_oil', 'olive_oil', 'tomato_puree', 'fresh_coriander',
+            'fresh_basil'
+          ];
+          allStaples.forEach(id => STATE.selectedIngredients.add(id));
+          if (showFeedback) showToast('Loaded Desi & Italian Home preset!');
+        } else if (presetType === 'clear') {
+          STATE.selectedIngredients.clear();
+          if (showFeedback) showToast('Cleared all kitchen ingredients.');
+        }
+
+        saveToLocalStorage();
+        renderIngredients();
+        updateHeaderStats();
+        if (STATE.weeklyPlan.length > 0) {
+          generatePlan(true);
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 8. RENDER 7-DAY MEAL PLAN (DAY VIEW & FULL 7-DAY GRID)
+      // -------------------------------------------------------------
+      function renderWeeklyPlan() {
+        const container = document.getElementById('plan-display-container');
+        const daySelectorBar = document.getElementById('day-selector-bar');
+        container.innerHTML = '';
+        daySelectorBar.innerHTML = '';
+
+        if (!STATE.weeklyPlan || STATE.weeklyPlan.length === 0) {
+          container.innerHTML = `
+            <div class="bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-3">
+              <span class="material-symbols-outlined text-[40px] text-brand-500">soup_kitchen</span>
+              <h3 class="text-base font-bold text-slate-800">Your Plan is Ready to Generate</h3>
+              <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                Click below to generate all 21 meals tailored to your kitchen ingredients.
+              </p>
+              <button onclick="window.DishcoveryApp.generatePlan(true)" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md">
+                ⚡ Generate 7-Day Plan (21 Meals)
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        // Render Day Selector Bar for Day View Mode
+        if (STATE.planViewMode === 'day') {
+          daySelectorBar.classList.remove('hidden');
+          DAYS_OF_WEEK.forEach((day, idx) => {
+            const isActive = STATE.activeDayIndex === idx;
+            const btn = document.createElement('button');
+            btn.className = `px-4 py-2 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+              isActive 
+                ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20' 
+                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+            }`;
+            btn.textContent = day.substring(0, 3) + (isActive ? ` (${day})` : '');
+            btn.addEventListener('click', () => {
+              STATE.activeDayIndex = idx;
+              renderWeeklyPlan();
+            });
+            daySelectorBar.appendChild(btn);
+          });
+        } else {
+          daySelectorBar.classList.add('hidden');
+        }
+
+        // Render Cards based on View Mode
+        if (STATE.planViewMode === 'day') {
+          // Render Single Active Day
+          const dayData = STATE.weeklyPlan[STATE.activeDayIndex];
+          if (!dayData) return;
+
+          const dayCard = document.createElement('div');
+          dayCard.className = 'space-y-4';
+
+          const header = document.createElement('div');
+          header.className = 'flex items-center justify-between';
+          header.innerHTML = `
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-brand-600">Day ${STATE.activeDayIndex + 1} of 7</span>
+              <h3 class="text-2xl font-black text-slate-900">${dayData.day}</h3>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600" id="btn-prev-day" ${STATE.activeDayIndex === 0 ? 'disabled class="opacity-40"' : ''}>
+                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+              </button>
+              <button class="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600" id="btn-next-day" ${STATE.activeDayIndex === 6 ? 'disabled class="opacity-40"' : ''}>
+                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
+            </div>
+          `;
+          dayCard.appendChild(header);
+
+          const mealsGrid = document.createElement('div');
+          mealsGrid.className = 'grid grid-cols-1 md:grid-cols-3 gap-4';
+
+          mealsGrid.appendChild(createMealCard(dayData.day, 'Breakfast', dayData.breakfast, STATE.activeDayIndex, 'b', dayData.locked.b));
+          mealsGrid.appendChild(createMealCard(dayData.day, 'Lunch', dayData.lunch, STATE.activeDayIndex, 'l', dayData.locked.l));
+          mealsGrid.appendChild(createMealCard(dayData.day, 'Dinner', dayData.dinner, STATE.activeDayIndex, 'd', dayData.locked.d));
+
+          dayCard.appendChild(mealsGrid);
+          container.appendChild(dayCard);
+
+          // Day pagination buttons
+          header.querySelector('#btn-prev-day')?.addEventListener('click', () => {
+            if (STATE.activeDayIndex > 0) {
+              STATE.activeDayIndex--;
+              renderWeeklyPlan();
+            }
+          });
+          header.querySelector('#btn-next-day')?.addEventListener('click', () => {
+            if (STATE.activeDayIndex < 6) {
+              STATE.activeDayIndex++;
+              renderWeeklyPlan();
+            }
+          });
+
+        } else {
+          // Render All 7 Days in Full Grid / Itinerary
+          const fullContainer = document.createElement('div');
+          fullContainer.className = 'space-y-6';
+
+          STATE.weeklyPlan.forEach((dayData, dayIdx) => {
+            const daySection = document.createElement('div');
+            daySection.className = 'bg-white border border-slate-200 rounded-3xl p-5 shadow-xs';
+
+            const dayTitle = document.createElement('div');
+            dayTitle.className = 'flex items-center justify-between pb-3 border-b border-slate-100 mb-4';
+            dayTitle.innerHTML = `
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-brand-100 text-brand-800 text-xs font-black flex items-center justify-center">${dayIdx + 1}</span>
+                <h3 class="text-base font-extrabold text-slate-900">${dayData.day}</h3>
+              </div>
+              <span class="text-xs text-slate-400 font-semibold">3 meals planned</span>
+            `;
+            daySection.appendChild(dayTitle);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-1 sm:grid-cols-3 gap-3';
+            grid.appendChild(createMealCard(dayData.day, 'Breakfast', dayData.breakfast, dayIdx, 'b', dayData.locked.b, true));
+            grid.appendChild(createMealCard(dayData.day, 'Lunch', dayData.lunch, dayIdx, 'l', dayData.locked.l, true));
+            grid.appendChild(createMealCard(dayData.day, 'Dinner', dayData.dinner, dayIdx, 'd', dayData.locked.d, true));
+
+            daySection.appendChild(grid);
+            fullContainer.appendChild(daySection);
+          });
+
+          container.appendChild(fullContainer);
+        }
+      }
+
+      // Helper to construct a Meal Card
+      function createMealCard(dayName, mealTypeName, recipe, dayIndex, slotKey, isLocked, isCompact = false) {
+        const card = document.createElement('div');
+        const mealSlotName = mealTypeName.toLowerCase();
+
+        if (!recipe) {
+          card.className = 'bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-4 flex flex-col justify-center items-center text-center text-slate-400 min-h-[140px]';
+          card.innerHTML = `
+            <span class="text-xs font-bold text-slate-400">${mealTypeName}</span>
+            <span class="text-xs mt-1">No cookable recipe found</span>
+            <button class="mt-2 text-xs font-bold text-brand-600 underline" onclick="window.DishcoveryApp.switchTab('kitchen')">Add Ingredients</button>
+          `;
+          return card;
+        }
+
+        const isDesi = recipe.cuisine === 'Desi';
+        const cuisineBadgeClass = isDesi 
+          ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+          : 'bg-red-50 text-red-800 border-red-200';
+
+        const mealIcon = mealTypeName === 'Breakfast' ? 'wb_twilight' : (mealTypeName === 'Lunch' ? 'light_mode' : 'bedtime');
+
+        card.className = `group bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs hover:border-brand-400 hover:shadow-md transition-all flex flex-col justify-between ${
+          isLocked ? 'ring-2 ring-amber-400/80 bg-amber-50/20' : ''
+        }`;
+
+        card.innerHTML = `
           <div>
-            <h3 class="font-bold text-gray-900 text-base">Share Plan on WhatsApp</h3>
-            <p class="text-xs text-emerald-800">Send directly to your family or domestic helper!</p>
+            <!-- Header Tags -->
+            <div class="flex items-center justify-between gap-1 mb-2">
+              <span class="inline-flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                <span class="material-symbols-outlined text-[15px] text-amber-500">${mealIcon}</span>
+                ${mealTypeName}
+              </span>
+              
+              <div class="flex items-center gap-1">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${cuisineBadgeClass}">
+                  ${isDesi ? '🇵🇰 Desi' : '🇮🇹 Italian'}
+                </span>
+                <button class="btn-lock-meal p-1 rounded-lg text-slate-400 hover:text-amber-600 transition-colors" title="${isLocked ? 'Locked (Click to unlock)' : 'Lock meal'}" data-day="${dayIndex}" data-slot="${slotKey}">
+                  <span class="material-symbols-outlined text-[16px] ${isLocked ? 'text-amber-500 font-bold' : ''}">
+                    ${isLocked ? 'lock' : 'lock_open'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dish Title -->
+            <h4 class="font-extrabold text-sm sm:text-base text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-2 leading-snug">
+              ${recipe.title}
+            </h4>
+
+            <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+              ${recipe.description}
+            </p>
           </div>
-        </div>
-        <button onclick="closeWhatsAppModal()" class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 hover:bg-emerald-200 flex items-center justify-center">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
 
-      <div class="p-4 overflow-y-auto">
-        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-          Plan Text Preview (English):
-        </label>
-        <textarea id="whatsappTextPreview" readonly class="w-full h-64 p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono text-gray-800 focus:outline-none"></textarea>
-      </div>
+          <!-- Bottom Actions -->
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between meal-card-actions">
+            <span class="flex items-center gap-1 text-[11px] font-semibold text-slate-500">
+              <span class="material-symbols-outlined text-[14px] text-brand-600">schedule</span>
+              ${recipe.cookTime}
+            </span>
 
-      <div class="p-4 border-t border-warm-border bg-warm-ivory flex flex-col gap-2">
-        <button onclick="copyWhatsAppText()" id="btnCopyWhatsApp" class="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all">
-          <i data-lucide="copy" class="w-4 h-4"></i>
-          <span>Copy to Clipboard</span>
-        </button>
+            <div class="flex items-center gap-1">
+              <button class="btn-swap-meal px-2 py-1 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg text-xs font-bold transition-all flex items-center gap-0.5" data-day="${dayIndex}" data-slot="${mealSlotName}" title="Swap with another meal">
+                <span class="material-symbols-outlined text-[14px]">swap_horiz</span>
+                <span>Swap</span>
+              </button>
 
-        <button onclick="openNativeWhatsApp()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all">
-          <i data-lucide="message-circle" class="w-4 h-4"></i>
-          <span>Open in WhatsApp</span>
-        </button>
-      </div>
+              <button class="btn-view-recipe px-2.5 py-1 bg-slate-900 hover:bg-brand-600 text-white rounded-lg text-xs font-bold transition-all shadow-xs" data-id="${recipe.id}">
+                View Recipe
+              </button>
+            </div>
+          </div>
+        `;
 
-    </div>
-  </div>
+        // Attach listeners
+        card.querySelector('.btn-view-recipe').addEventListener('click', () => {
+          openRecipeModal(recipe);
+        });
 
+        card.querySelector('.btn-swap-meal').addEventListener('click', (e) => {
+          e.stopPropagation();
+          swapSingleMeal(dayIndex, mealSlotName);
+        });
 
-  <!-- ======================================================================
-       FOOTER
-       ====================================================================== -->
-  <footer class="mt-auto py-6 bg-white border-t border-warm-border text-center text-xs text-gray-500 no-print">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div class="flex items-center gap-2">
-        <span class="text-base">👩‍🍳</span>
-        <span class="font-semibold text-gray-800">DishCovery</span>
-        <span>• Pakistani & Italian Weekly Meal Planner</span>
-      </div>
-      <div class="flex items-center gap-4 text-gray-500">
-        <span>Zero Grocery Stress</span>
-        <span>•</span>
-        <span>Only Pakistani & Italian Cuisines</span>
-        <span>•</span>
-        <span>100% Home Ingredients</span>
-      </div>
-    </div>
-  </footer>
+        card.querySelector('.btn-lock-meal').addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleMealLock(dayIndex, slotKey);
+        });
 
-  <!-- Application Logic Scripts -->
-  <script src="recipes.js"></script>
-  <script src="app.js"></script>
+        return card;
+      }
+
+      // -------------------------------------------------------------
+      // 9. RENDER ALL ELIGIBLE RECIPES (EXPLORER TAB)
+      // -------------------------------------------------------------
+      function renderEligibleRecipes() {
+        const grid = document.getElementById('all-eligible-recipes-grid');
+        const emptyState = document.getElementById('recipes-empty-state');
+        grid.innerHTML = '';
+
+        const cuisineFilter = document.getElementById('filter-cuisine').value;
+        const mealFilter = document.getElementById('filter-mealtype').value;
+
+        const eligible = getCookableRecipes(cuisineFilter, mealFilter);
+
+        if (eligible.length === 0) {
+          emptyState.classList.remove('hidden');
+          return;
+        } else {
+          emptyState.classList.add('hidden');
+        }
+
+        eligible.forEach(recipe => {
+          const isDesi = recipe.cuisine === 'Desi';
+          const card = document.createElement('article');
+          card.className = 'bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs hover:border-brand-500 hover:shadow-md transition-all flex flex-col justify-between';
+
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${isDesi ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'}">
+                  ${isDesi ? '🇵🇰 Desi Pakistani' : '🇮🇹 Italian'}
+                </span>
+                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold">
+                  ${recipe.mealType}
+                </span>
+              </div>
+
+              <h4 class="text-base font-extrabold text-slate-900 leading-snug">
+                ${recipe.title}
+              </h4>
+              <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                ${recipe.description}
+              </p>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span class="flex items-center gap-1 text-xs font-semibold text-slate-500">
+                <span class="material-symbols-outlined text-[16px] text-brand-600">schedule</span>
+                ${recipe.prepTime} prep • ${recipe.cookTime} cook
+              </span>
+              <button class="btn-card-view px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs" data-id="${recipe.id}">
+                View Recipe
+              </button>
+            </div>
+          `;
+
+          card.querySelector('.btn-card-view').addEventListener('click', () => {
+            openRecipeModal(recipe);
+          });
+
+          grid.appendChild(card);
+        });
+      }
+
+      // -------------------------------------------------------------
+      // 10. RECIPE MODAL DETAIL VIEW
+      // -------------------------------------------------------------
+      function openRecipeModal(recipe) {
+        if (!recipe) return;
+
+        const modal = document.getElementById('recipe-modal');
+        document.getElementById('modal-recipe-title').textContent = recipe.title;
+        document.getElementById('modal-recipe-desc').textContent = recipe.description;
+        document.getElementById('modal-time-text').textContent = `${recipe.prepTime} prep • ${recipe.cookTime} cook`;
+
+        // Cuisine badge
+        const cuisineBadge = document.getElementById('modal-cuisine-badge');
+        const isDesi = recipe.cuisine === 'Desi';
+        cuisineBadge.textContent = isDesi ? '🇵🇰 Desi Pakistani' : '🇮🇹 Italian';
+        cuisineBadge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+          isDesi ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'
+        }`;
+
+        // Meal type badge
+        document.getElementById('modal-mealtype-badge').textContent = recipe.mealType;
+
+        // Ingredients with checkmarks
+        const ingList = document.getElementById('modal-ingredients-list');
+        ingList.innerHTML = '';
+        recipe.required.forEach(ingId => {
+          // Find friendly name
+          let itemName = ingId;
+          INGREDIENT_CATEGORIES.forEach(cat => {
+            const found = cat.items.find(i => i.id === ingId);
+            if (found) itemName = found.name;
+          });
+
+          const li = document.createElement('li');
+          li.className = 'flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-100 font-medium text-slate-800';
+          li.innerHTML = `
+            <span class="material-symbols-outlined text-emerald-600 text-[16px] shrink-0">check_circle</span>
+            <span class="truncate">${itemName}</span>
+          `;
+          ingList.appendChild(li);
+        });
+
+        // Instructions
+        const instrList = document.getElementById('modal-instructions-list');
+        instrList.innerHTML = '';
+        recipe.instructions.forEach((step, idx) => {
+          const li = document.createElement('li');
+          li.className = 'flex items-start gap-3 text-xs leading-relaxed';
+          li.innerHTML = `
+            <span class="w-5 h-5 rounded-full bg-brand-100 text-brand-800 font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+            <span class="text-slate-700">${step}</span>
+          `;
+          instrList.appendChild(li);
+        });
+
+        // Tip
+        document.getElementById('modal-tip-text').textContent = recipe.tip;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeRecipeModal() {
+        const modal = document.getElementById('recipe-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+      }
+
+      // -------------------------------------------------------------
+      // 11. SHARING: COPY FOR WHATSAPP & PRINT
+      // -------------------------------------------------------------
+      function copyPlanForWhatsApp() {
+        if (!STATE.weeklyPlan || STATE.weeklyPlan.length === 0) {
+          showToast('Please generate a meal plan first!');
+          return;
+        }
+
+        let text = `🥘 *Dishcovery — Weekly 7-Day Meal Plan (21 Meals)* 🥘\n`;
+        text += `_Customized from home ingredients • Desi & Italian Recipes_\n\n`;
+
+        STATE.weeklyPlan.forEach(d => {
+          text += `📅 *${d.day.toUpperCase()}*\n`;
+          text += `  🌅 *Breakfast:* ${d.breakfast ? d.breakfast.title : 'Not set'} (${d.breakfast?.cuisine || ''})\n`;
+          text += `  ☀️ *Lunch:* ${d.lunch ? d.lunch.title : 'Not set'} (${d.lunch?.cuisine || ''})\n`;
+          text += `  🌙 *Dinner:* ${d.dinner ? d.dinner.title : 'Not set'} (${d.dinner?.cuisine || ''})\n\n`;
+        });
+
+        text += `✨ _Generated with Dishcovery_`;
+
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Weekly plan copied to clipboard! Ready to paste into WhatsApp.');
+        }).catch(() => {
+          showToast('Failed to copy. Please allow clipboard permissions.');
+        });
+      }
+
+      // -------------------------------------------------------------
+      // 12. TOAST HELPER
+      // -------------------------------------------------------------
+      let toastTimeout;
+      function showToast(msg) {
+        const toast = document.getElementById('toast');
+        const text = document.getElementById('toast-text');
+        text.textContent = msg;
+        toast.classList.remove('opacity-0', 'pointer-events-none');
+        toast.classList.add('opacity-100');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.classList.remove('opacity-100');
+          toast.classList.add('opacity-0', 'pointer-events-none');
+        }, 2500);
+      }
+
+      // -------------------------------------------------------------
+      // 13. TAB SWITCHING
+      // -------------------------------------------------------------
+      function switchTab(target) {
+        STATE.currentTab = target;
+
+        const tabKitchen = document.getElementById('tab-kitchen');
+        const tabPlan = document.getElementById('tab-plan');
+        const tabRecipes = document.getElementById('tab-recipes');
+
+        const btnKitchen = document.getElementById('nav-btn-kitchen');
+        const btnPlan = document.getElementById('nav-btn-plan');
+        const btnRecipes = document.getElementById('nav-btn-recipes');
+
+        [tabKitchen, tabPlan, tabRecipes].forEach(el => el.classList.add('hidden'));
+        [btnKitchen, btnPlan, btnRecipes].forEach(btn => {
+          btn.classList.remove('border-brand-600', 'text-brand-600');
+          btn.classList.add('border-transparent', 'text-slate-500');
+        });
+
+        if (target === 'kitchen') {
+          tabKitchen.classList.remove('hidden');
+          btnKitchen.classList.add('border-brand-600', 'text-brand-600');
+          btnKitchen.classList.remove('border-transparent', 'text-slate-500');
+        } else if (target === 'plan') {
+          tabPlan.classList.remove('hidden');
+          btnPlan.classList.add('border-brand-600', 'text-brand-600');
+          btnPlan.classList.remove('border-transparent', 'text-slate-500');
+          if (!STATE.weeklyPlan || STATE.weeklyPlan.length === 0) {
+            generatePlan(false);
+          } else {
+            renderWeeklyPlan();
+          }
+        } else if (target === 'recipes') {
+          tabRecipes.classList.remove('hidden');
+          btnRecipes.classList.add('border-brand-600', 'text-brand-600');
+          btnRecipes.classList.remove('border-transparent', 'text-slate-500');
+          renderEligibleRecipes();
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // -------------------------------------------------------------
+      // 14. EVENT LISTENERS SETUP
+      // -------------------------------------------------------------
+      function setupEventListeners() {
+        // Nav tabs
+        document.getElementById('nav-btn-kitchen').addEventListener('click', () => switchTab('kitchen'));
+        document.getElementById('nav-btn-plan').addEventListener('click', () => switchTab('plan'));
+        document.getElementById('nav-btn-recipes').addEventListener('click', () => switchTab('recipes'));
+
+        // Header generate / plan jump
+        document.getElementById('btn-goto-plan-top')?.addEventListener('click', () => {
+          generatePlan(true);
+          switchTab('plan');
+        });
+
+        document.getElementById('btn-mobile-plan-cta')?.addEventListener('click', () => {
+          generatePlan(true);
+          switchTab('plan');
+        });
+
+        // Header quick reset
+        document.getElementById('btn-quick-reset').addEventListener('click', () => {
+          if (confirm('Reset your selected kitchen ingredients?')) {
+            applyPreset('clear');
+          }
+        });
+
+        // Presets
+        document.getElementById('preset-desi').addEventListener('click', () => applyPreset('desi'));
+        document.getElementById('preset-both').addEventListener('click', () => applyPreset('both'));
+        document.getElementById('preset-clear').addEventListener('click', () => applyPreset('clear'));
+
+        // Search ingredient
+        document.getElementById('ingredient-search-input').addEventListener('input', (e) => {
+          STATE.searchQuery = e.target.value;
+          renderIngredients();
+        });
+
+        // Add custom ingredient
+        document.getElementById('btn-add-custom').addEventListener('click', () => {
+          const input = document.getElementById('custom-ingredient-input');
+          const val = input.value.trim();
+          if (val) {
+            STATE.customIngredients.push(val);
+            const customId = 'custom_' + (STATE.customIngredients.length - 1);
+            STATE.selectedIngredients.add(customId);
+            input.value = '';
+            saveToLocalStorage();
+            renderIngredients();
+            updateHeaderStats();
+            showToast(`Added "${val}" to your kitchen!`);
+          }
+        });
+
+        // Plan actions
+        document.getElementById('btn-regenerate-plan').addEventListener('click', () => {
+          generatePlan(true);
+        });
+
+        document.getElementById('btn-copy-plan').addEventListener('click', copyPlanForWhatsApp);
+
+        document.getElementById('btn-print-plan').addEventListener('click', () => {
+          window.print();
+        });
+
+        // Cuisine Preference toggle
+        document.querySelectorAll('.cuisine-pref-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.cuisine-pref-btn').forEach(b => {
+              b.classList.remove('bg-white', 'text-slate-900', 'shadow-xs', 'font-bold');
+              b.classList.add('text-slate-600', 'font-medium');
+            });
+            btn.classList.add('bg-white', 'text-slate-900', 'shadow-xs', 'font-bold');
+            btn.classList.remove('text-slate-600', 'font-medium');
+            STATE.cuisinePreference = btn.getAttribute('data-pref');
+            saveToLocalStorage();
+            generatePlan(true);
+          });
+        });
+
+        // View Mode Toggle (Day vs 7-Day Grid)
+        document.getElementById('view-mode-day').addEventListener('click', () => {
+          STATE.planViewMode = 'day';
+          document.getElementById('view-mode-day').classList.add('bg-white', 'text-slate-900', 'shadow-xs', 'font-bold');
+          document.getElementById('view-mode-week').classList.remove('bg-white', 'text-slate-900', 'shadow-xs', 'font-bold');
+          document.getElementById('view-mode-week').classList.add('text-slate-600', 'font-medium');
+          renderWeeklyPlan();
+        });
+
+        document.getElementById('view-mode-week').addEventListener('click', () => {
+          STATE.planViewMode = 'week';
+          document.getElementById('view-mode-week').classList.add('bg-white', 'text-slate-900', 'shadow-xs', 'font-bold');
+          document.getElementById('view-mode-day').classList.remove('bg-white', 'text-slate-900', 'shadow-xs', 'font-bold');
+          document.getElementById('view-mode-day').classList.add('text-slate-600', 'font-medium');
+          renderWeeklyPlan();
+        });
+
+        // Recipe Browser Filters
+        document.getElementById('filter-cuisine').addEventListener('change', renderEligibleRecipes);
+        document.getElementById('filter-mealtype').addEventListener('change', renderEligibleRecipes);
+
+        // Modal close
+        document.getElementById('btn-close-modal').addEventListener('click', closeRecipeModal);
+        document.getElementById('btn-modal-done').addEventListener('click', closeRecipeModal);
+        document.getElementById('recipe-modal').addEventListener('click', (e) => {
+          if (e.target.id === 'recipe-modal') closeRecipeModal();
+        });
+      }
+
+      // Expose helpers globally on window.DishcoveryApp
+      window.DishcoveryApp = {
+        switchTab,
+        generatePlan,
+        openRecipeModal,
+        closeRecipeModal,
+        applyPreset
+      };
+
+      // -------------------------------------------------------------
+      // 15. BOOTSTRAP
+      // -------------------------------------------------------------
+      loadFromLocalStorage();
+      renderIngredients();
+      updateHeaderStats();
+      setupEventListeners();
+
+      // If user starts with plan ready, initialize it
+      if (STATE.weeklyPlan.length === 0) {
+        generatePlan(false);
+      }
+
+    })();
+  </script>
 </body>
 </html>
